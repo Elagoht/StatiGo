@@ -322,11 +322,11 @@ p { margin-bottom: var(--spacing-md); }
 
 /* Documentation */
 .docs-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 220px 1fr 200px;
   gap: var(--spacing-xl);
 }
 
@@ -334,6 +334,7 @@ p { margin-bottom: var(--spacing-md); }
   position: sticky;
   top: 5rem;
   height: fit-content;
+  align-self: start;
 }
 
 .docs-sidebar-header {
@@ -385,7 +386,7 @@ p { margin-bottom: var(--spacing-md); }
 }
 
 .docs-content {
-  max-width: 800px;
+  width: 100%;
 }
 
 .docs-content h1 {
@@ -394,15 +395,12 @@ p { margin-bottom: var(--spacing-md); }
 }
 
 .docs-body {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
 }
 
-@media (max-width: 1024px) {
-  .docs-body {
-    grid-template-columns: 1fr;
-  }
+.docs-markdown {
+  width: 100%;
 }
 
 .docs-toc {
@@ -416,6 +414,8 @@ p { margin-bottom: var(--spacing-md); }
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .docs-toc-list {
@@ -432,11 +432,13 @@ p { margin-bottom: var(--spacing-md); }
   font-size: 0.875rem;
   color: var(--color-text-light);
   text-decoration: none;
+  display: block;
+  padding: 0.25rem 0;
 }
 
 .docs-toc-link:hover {
   color: var(--color-primary);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .docs-markdown {

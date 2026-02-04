@@ -29,26 +29,24 @@
   <main class="docs-main">
     <div class="docs-content">
       <h1>{{.Doc.Title}}</h1>
-      <div class="docs-body">
-        {{if .Doc.TOC}}
-        <div class="docs-toc">
-          <h3>On this page</h3>
-          <ul class="docs-toc-list">
-            {{range .Doc.TOC}}
-            <li>
-              <a href="#{{.ID}}" class="docs-toc-link">{{.Title}}</a>
-            </li>
-            {{end}}
-          </ul>
-        </div>
-        {{end}}
-
-        <div class="docs-markdown">
-          {{safeHTML .Doc.Content}}
-        </div>
+      <div class="docs-markdown">
+        {{safeHTML .Doc.Content}}
       </div>
     </div>
   </main>
+
+  {{if .Doc.TOC}}
+  <aside class="docs-toc">
+    <h3>On this page</h3>
+    <ul class="docs-toc-list">
+      {{range .Doc.TOC}}
+      <li>
+        <a href="#{{.ID}}" class="docs-toc-link">{{.Title}}</a>
+      </li>
+      {{end}}
+    </ul>
+  </aside>
+  {{end}}
 </div>
 
 {{if .Doc.TOC}}
