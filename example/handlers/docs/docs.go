@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 
+	"statigo/framework/middleware"
 	"statigo/framework/templates"
 )
 
@@ -76,7 +78,10 @@ type SidebarItem struct {
 
 // ServeHTTP handles documentation page requests.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	slug := strings.TrimPrefix(r.URL.Path, "/docs/")
+	lang := middleware.GetLanguage(r.Context())
+
+	// Get the doc slug from the route
+	slug := chi.URLParam(r, "slug")
 
 	// Default to overview if no slug
 	if slug == "" || slug == "/" {
@@ -87,7 +92,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	content, err := fs.ReadFile(h.docFS, slug+".md")
 	if err != nil {
 		h.logger.Warn("Doc not found", "slug", slug, "error", err)
-		h.render404(w, r)
+		h.render404(w, r, lang)
 		return
 	}
 
@@ -104,6 +109,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Generate sidebar
 	sidebar := h.generateSidebar()
 
+	// Build canonical path
+	canonical := "/docs/" + slug
+
 	doc := Doc{
 		Title:       title,
 		Content:     htmlBuf.String(),
@@ -113,9 +121,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Doc":     doc,
-		"Title":   title + " - Documentation",
-		"BaseURL": h.baseURL,
+		"Doc":       doc,
+		"Title":     title + " - Documentation",
+		"BaseURL":   h.baseURL,
+		"Lang":      lang,
+		"Canonical": canonical,
 	}
 
 	h.renderer.Render(w, "docs.html", data)
@@ -209,7 +219,7 @@ func (h *Handler) slugify(s string) string {
 }
 
 // render404 renders a 404 page for documentation.
-func (h *Handler) render404(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) render404(w http.ResponseWriter, r *http.Request, lang string) {
 	w.WriteHeader(http.StatusNotFound)
 
 	data := map[string]interface{}{
@@ -218,7 +228,9 @@ func (h *Handler) render404(w http.ResponseWriter, r *http.Request) {
 			Content: "<p>The documentation page you're looking for doesn't exist.</p>",
 			Sidebar: h.generateSidebar(),
 		},
-		"Title": "Documentation Not Found",
+		"Title":     "Documentation Not Found",
+		"Lang":      lang,
+		"Canonical": "/docs/404",
 	}
 
 	h.renderer.Render(w, "docs.html", data)
