@@ -1,0 +1,26 @@
+{
+  "routes": [
+    {
+      "canonical": "/",
+      "paths": {
+        "en": "/en",
+        "tr": "/tr"
+      },
+      "strategy": "static",
+      "template": "index.html",
+      "handler": "index",
+      "title": "pages.home.title"
+    },
+    {
+      "canonical": "/about",
+      "paths": {
+        "en": "/en/about",
+        "tr": "/tr/hakkinda"
+      },
+      "strategy": "static",
+      "template": "about.html",
+      "handler": "about",
+      "title": "pages.about.title"
+    }
+  ]
+}

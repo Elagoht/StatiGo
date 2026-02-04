@@ -1,0 +1,31 @@
+[Unit]
+Description=Landing Page Go Application
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/landing-page-go
+EnvironmentFile=/opt/landing-page-go/.env
+ExecStart=/opt/landing-page-go/bin/landing-page
+Restart=always
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=landing-page
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/landing-page-go/cache /opt/landing-page-go/data
+
+# Resource limits
+LimitNOFILE=65536
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target
