@@ -1,13 +1,13 @@
 {{define "header.html"}}
 <header class="site-header">
   <nav class="nav-container">
-    <a href="/{{.Lang}}/" class="logo">
+    <a href="{{localePath "/" .Lang}}" class="logo">
       <span class="logo-text">Statigo</span>
     </a>
 
     <ul class="nav-links">
-      <li><a href="/{{.Lang}}/">{{t .Lang "nav.home"}}</a></li>
-      <li><a href="/{{.Lang}}/about">{{t .Lang "nav.about"}}</a></li>
+      <li><a href="{{localePath "/" .Lang}}">{{t .Lang "nav.home"}}</a></li>
+      <li><a href="{{localePath "/about" .Lang}}">{{t .Lang "nav.about"}}</a></li>
     </ul>
 
     {{/* Language Switcher */}}

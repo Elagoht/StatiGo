@@ -73,8 +73,8 @@ func (sh *SEOHelpers) GetAlternateURLs(canonical string) map[string]string {
 	return nil
 }
 
-// GetPathForLanguage returns the path for a specific language version of a page.
-func (sh *SEOHelpers) GetPathForLanguage(canonical string, lang string) string {
+// GetLocalePath returns the URL path for a canonical path and language.
+func (sh *SEOHelpers) GetLocalePath(canonical string, lang string) string {
 	if route := sh.registry.GetByCanonical(canonical); route != nil {
 		if path, exists := route.Paths[lang]; exists {
 			return path
@@ -86,18 +86,18 @@ func (sh *SEOHelpers) GetPathForLanguage(canonical string, lang string) string {
 // SEOFunctions holds SEO-related template functions.
 // This struct is used to pass SEO functions to the template renderer.
 type SEOFunctions struct {
-	CanonicalURL    func(canonical, lang string) string
-	AlternateLinks  func(canonical string) template.HTML
-	AlternateURLs   func(canonical string) map[string]string
-	PathForLanguage func(canonical, lang string) string
+	CanonicalURL   func(canonical, lang string) string
+	AlternateLinks func(canonical string) template.HTML
+	AlternateURLs  func(canonical string) map[string]string
+	LocalePath     func(canonical, lang string) string
 }
 
 // ToTemplateFunctions converts SEOHelpers to a SEOFunctions struct.
 func (sh *SEOHelpers) ToTemplateFunctions() *SEOFunctions {
 	return &SEOFunctions{
-		CanonicalURL:    sh.GetCanonicalURL,
-		AlternateLinks:  sh.GetAlternateLinks,
-		AlternateURLs:   sh.GetAlternateURLs,
-		PathForLanguage: sh.GetPathForLanguage,
+		CanonicalURL:   sh.GetCanonicalURL,
+		AlternateLinks: sh.GetAlternateLinks,
+		AlternateURLs:  sh.GetAlternateURLs,
+		LocalePath:     sh.GetLocalePath,
 	}
 }

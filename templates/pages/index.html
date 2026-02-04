@@ -6,7 +6,7 @@
     <h1 class="hero-title">{{.Content.heading}}</h1>
     <p class="hero-subtitle">{{.Content.subheading}}</p>
     <div class="hero-actions">
-      <a href="/{{.Lang}}/about" class="btn btn-primary">{{t .Lang "pages.home.cta"}}</a>
+      <a href="{{localePath "/about" .Lang}}" class="btn btn-primary">{{t .Lang "pages.home.cta"}}</a>
     </div>
   </div>
 </section>

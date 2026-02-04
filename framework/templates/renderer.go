@@ -25,10 +25,10 @@ type Renderer struct {
 
 // SEOFunctions holds SEO-related template functions.
 type SEOFunctions struct {
-	CanonicalURL    func(canonical, lang string) string
-	AlternateLinks  func(canonical string) template.HTML
-	AlternateURLs   func(canonical string) map[string]string
-	PathForLanguage func(canonical, lang string) string
+	CanonicalURL   func(canonical, lang string) string
+	AlternateLinks func(canonical string) template.HTML
+	AlternateURLs  func(canonical string) map[string]string
+	LocalePath     func(canonical, lang string) string
 }
 
 // NewRenderer creates a new template renderer.
@@ -63,13 +63,13 @@ func NewRenderer(templatesFS fs.FS, i18nInstance *i18n.I18n, seoFuncs *SEOFuncti
 		funcMap["canonicalURL"] = seoFuncs.CanonicalURL
 		funcMap["alternateLinks"] = seoFuncs.AlternateLinks
 		funcMap["alternateURLs"] = seoFuncs.AlternateURLs
-		funcMap["pathForLanguage"] = seoFuncs.PathForLanguage
+		funcMap["localePath"] = seoFuncs.LocalePath
 	} else {
 		// Provide default no-op implementations
 		funcMap["canonicalURL"] = func(canonical, lang string) string { return "" }
 		funcMap["alternateLinks"] = func(canonical string) template.HTML { return "" }
 		funcMap["alternateURLs"] = func(canonical string) map[string]string { return nil }
-		funcMap["pathForLanguage"] = func(canonical, lang string) string { return "" }
+		funcMap["localePath"] = func(canonical, lang string) string { return "" }
 	}
 
 	templates := template.New("base").Funcs(funcMap)

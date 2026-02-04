@@ -71,10 +71,10 @@ func main() {
 
 	// Convert to templates.SEOFunctions (same structure, different package)
 	seoFuncs := &templates.SEOFunctions{
-		CanonicalURL:    routerSEOFuncs.CanonicalURL,
+		CanonicalURL:   routerSEOFuncs.CanonicalURL,
 		AlternateLinks:  routerSEOFuncs.AlternateLinks,
 		AlternateURLs:   routerSEOFuncs.AlternateURLs,
-		PathForLanguage: routerSEOFuncs.PathForLanguage,
+		LocalePath:     routerSEOFuncs.LocalePath,
 	}
 
 	// Initialize template renderer
