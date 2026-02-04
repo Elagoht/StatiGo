@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "about": "Hakkında"
+  },
+  "footer": {
+    "copyright": "Statigo Framework. Go ile yapıldı."
+  },
+  "pages": {
+    "home": {
+      "title": "Statigo'ya Hoş Geldiniz",
+      "description": "Statik öncelikli, SEO optimize edilmiş bir Go web framework'ü",
+      "heading": "Hızlı, SEO Optimize Web Siteleri Oluşturun",
+      "subheading": "Statigo, önbellekleme, i18n ve SEO ile hazır bir üretim sınıfı Go web framework'üdür.",
+      "cta": "Daha Fazla Bilgi",
+      "features": {
+        "title": "Neden Statigo?",
+        "fast": {
+          "title": "Işık Hızında",
+          "description": "Brotli sıkıştırma ile iki katmanlı önbellekleme milisaniyenin altında yanıt süreleri sunar."
+        },
+        "seo": {
+          "title": "SEO Optimize",
+          "description": "Kuruluşta kanonik URL'ler, hreflang etiketleri, yapılandırılmış veriler ve site haritaları."
+        },
+        "i18n": {
+          "title": "Çok Dilli Hazır",
+          "description": "URL tabanlı dil yönlendirmesi ile yerleşik uluslararasılaşma."
+        }
+      }
+    },
+    "about": {
+      "title": "Statigo Hakkında",
+      "description": "Statigo framework'ü hakkında daha fazla bilgi",
+      "heading": "Statigo Hakkında",
+      "body": "Statigo, üretim sistemlerinden çıkarılmış statik öncelikli, SEO optimize edilmiş bir Go web framework'üdür. Önbellekleme, uluslararasılaşma, güvenlik ara yazılımı ve daha fazlasını sağlar."
+    },
+    "notfound": {
+      "title": "Sayfa Bulunamadı",
+      "heading": "Sayfa Bulunamadı",
+      "message": "Aradığınız sayfa mevcut değil veya taşınmış.",
+      "action": "Ana Sayfaya Git"
+    }
+  }
+}

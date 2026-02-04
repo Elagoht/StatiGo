@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "footer": {
+    "copyright": "Statigo Framework. Built with Go."
+  },
+  "pages": {
+    "home": {
+      "title": "Welcome to Statigo",
+      "description": "A static-first, SEO-optimized Go web framework",
+      "heading": "Build Fast, SEO-Optimized Websites",
+      "subheading": "Statigo is a production-ready Go web framework with caching, i18n, and SEO built-in.",
+      "cta": "Learn More",
+      "features": {
+        "title": "Why Statigo?",
+        "fast": {
+          "title": "Lightning Fast",
+          "description": "Two-tier caching with Brotli compression delivers sub-millisecond response times."
+        },
+        "seo": {
+          "title": "SEO Optimized",
+          "description": "Canonical URLs, hreflang tags, structured data, and sitemaps out of the box."
+        },
+        "i18n": {
+          "title": "Multi-Language Ready",
+          "description": "Built-in internationalization with URL-based language routing."
+        }
+      }
+    },
+    "about": {
+      "title": "About Statigo",
+      "description": "Learn more about the Statigo framework",
+      "heading": "About Statigo",
+      "body": "Statigo is a static-first, SEO-optimized Go web framework extracted from production systems. It provides caching, internationalization, security middleware, and more."
+    },
+    "notfound": {
+      "title": "Page Not Found",
+      "heading": "Page Not Found",
+      "message": "The page you're looking for doesn't exist or has been moved.",
+      "action": "Go Home"
+    }
+  }
+}
