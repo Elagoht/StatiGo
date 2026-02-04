@@ -1,27 +1,27 @@
 [Unit]
-Description=Landing Page Go Application
+Description=Statigo Web Application
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-User=www-data
-Group=www-data
-WorkingDirectory=/opt/landing-page-go
-EnvironmentFile=/opt/landing-page-go/.env
-ExecStart=/opt/landing-page-go/bin/landing-page
+User=statigo
+Group=statigo
+WorkingDirectory=/opt/statigo
+EnvironmentFile=/opt/statigo/.env
+ExecStart=/opt/statigo/statigo
 Restart=always
 RestartSec=5s
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=landing-page
+SyslogIdentifier=statigo
 
 # Security hardening
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/landing-page-go/cache /opt/landing-page-go/data
+ReadWritePaths=/opt/statigo/data/cache /opt/statigo/data
 
 # Resource limits
 LimitNOFILE=65536
