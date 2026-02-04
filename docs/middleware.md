@@ -1,332 +1,229 @@
 # Middleware
 
-Statigo provides a comprehensive set of middleware for security, performance, and functionality.
-
-## Middleware Stack
-
-The standard middleware stack (in order):
-
-```go
-r.Use(middleware.StructuredLogger(logger))
-r.Use(chiMiddleware.Recoverer)
-r.Use(middleware.IPBanMiddleware(ipBanList, logger))
-r.Use(middleware.HoneypotMiddleware(ipBanList, honeypotPaths, logger))
-r.Use(middleware.RateLimiter(config))
-r.Use(middleware.Compression())
-r.Use(middleware.SecurityHeaders(config))
-r.Use(middleware.CachingHeaders(devMode))
-r.Use(staticFileMiddleware(...))
-r.Use(middleware.Language(i18nInstance, config))
-r.Use(router.CanonicalPathMiddleware(registry))
-r.Use(middleware.CacheMiddleware(cacheManager, logger))
-```
+Statigo includes a comprehensive middleware pipeline for security, performance, and functionality.
 
 ## Available Middleware
 
 ### Logging Middleware
 
-Structured logging for all requests:
+Structured request logging with slog:
 
 ```go
 r.Use(middleware.StructuredLogger(logger))
 ```
 
-Output format:
-
+Output:
 ```
-[2024-01-15 10:30:45][INFO][request handled][method=GET][path=/en/about][status=200][duration=5ms]
+INFO request method=GET path=/en/about status=200 duration=5ms
 ```
 
 ### Compression Middleware
 
-Brotli and gzip compression:
+Brotli (preferred) and gzip compression:
 
 ```go
 r.Use(middleware.Compression())
 ```
 
-Automatically:
+Automatically compresses: HTML, CSS, JS, JSON, XML, SVG
 
-- Compresses responses based on Accept-Encoding
-- Prefers Brotli over gzip
-- Minifies CSS/JS/HTML in static files
-
-### Rate Limiter
+### Rate Limiting Middleware
 
 Token bucket rate limiting:
 
 ```go
-config := middleware.RateLimiterConfig{
-    RPS:              10,   // Requests per second
-    Burst:            20,   // Burst size
-    StaticMultiplier: 10,   // Higher limit for static assets
-    CrawlerBypass:    true, // Bypass for known crawlers
-}
-
-r.Use(middleware.RateLimiter(config))
+r.Use(middleware.RateLimiter(middleware.RateLimiterConfig{
+    RPS:   10,  // Requests per second
+    Burst: 20,  // Burst size
+}))
 ```
 
-Headers on rate limit:
-
-```
-HTTP/1.1 429 Too Many Requests
-Retry-After: 1
-X-RateLimit-Limit: 10
-X-RateLimit-Burst: 20
-```
-
-### Security Headers
-
-```go
-config := middleware.SecurityHeadersConfig{
-    HSTSMaxAge:         31536000,
-    FrameOptions:       "DENY",
-    ContentTypeOptions: "nosniff",
-    ReferrerPolicy:     "strict-origin-when-cross-origin",
-}
-
-r.Use(middleware.SecurityHeaders(config))
-```
-
-Headers added:
-
-```
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-X-Frame-Options: DENY
-X-Content-Type-Options: nosniff
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), microphone=(), camera=()
+Configure via environment:
+```bash
+RATE_LIMIT_RPS=10
+RATE_LIMIT_BURST=20
 ```
 
 ### IP Ban Middleware
 
-Block requests from banned IPs:
+Block banned IPs with persistent storage:
 
 ```go
 ipBanList, _ := security.NewIPBanList("data/banned-ips.json", logger)
 r.Use(middleware.IPBanMiddleware(ipBanList, logger))
 ```
 
-Ban list format:
-
-```json
-{
-  "banned": [
-    {
-      "ip": "1.2.3.4",
-      "reason": "abuse",
-      "banned_at": "2024-01-15T10:00:00Z"
-    }
-  ]
-}
+Ban an IP programmatically:
+```go
+ipBanList.Ban("192.168.1.100", "Abusive behavior", r)
 ```
 
 ### Honeypot Middleware
 
-Trap and ban malicious bots:
+Trap bots accessing fake admin paths:
 
 ```go
 honeypotPaths := []string{
     "/admin", "/wp-admin", "/wp-login.php",
-    "/.env", "/.git/config", "/phpMyAdmin",
+    "/.env", "/.git/config",
 }
-
 r.Use(middleware.HoneypotMiddleware(ipBanList, honeypotPaths, logger))
 ```
 
-Accessing honeypot paths results in:
+Bots accessing these paths are automatically banned.
 
-- IP added to ban list
-- HTTP 403 response
-- Logged entry
+### Security Headers Middleware
+
+Add security headers:
+
+```go
+// Simple preset
+r.Use(middleware.SecurityHeadersSimple())
+
+// Or customize
+r.Use(middleware.SecurityHeaders(middleware.SecurityHeadersConfig{
+    CSP:           "default-src 'self'",
+    HSTSEnabled:   true,
+    HSTSMaxAge:    31536000,
+    FrameOptions:  "DENY",
+    PermissionsPolicy: "geolocation=(), camera=()",
+}))
+```
+
+Headers added:
+- `Content-Security-Policy`
+- `X-Frame-Options`
+- `X-Content-Type-Options`
+- `Strict-Transport-Security`
+- `Permissions-Policy`
 
 ### Language Middleware
 
-Detect and set language from URL:
+Detect and set language from URL, cookie, or Accept-Language header:
 
 ```go
-config := middleware.LanguageConfig{
+langConfig := middleware.LanguageConfig{
     SupportedLanguages: []string{"en", "tr"},
     DefaultLanguage:    "en",
     SkipPaths:          []string{"/robots.txt", "/sitemap.xml"},
-    SkipPrefixes:       []string{"/health/", "/static/"},
+    SkipPrefixes:       []string{"/static/", "/health/"},
 }
-
-r.Use(middleware.Language(i18nInstance, config))
+r.Use(middleware.Language(i18nInstance, langConfig))
 ```
 
-Behavior:
+Detection priority:
+1. URL path prefix (`/en/`, `/tr/`)
+2. Cookie (`lang`)
+3. `Accept-Language` header
+4. Default language
 
-- Extracts language from URL path (e.g., `/tr/about`)
-- Redirects root to detected language
-- Sets language cookie
-- Passes language via context
+### Caching Headers Middleware
 
-### Cache Middleware
-
-Serve cached responses:
-
-```go
-r.Use(middleware.CacheMiddleware(cacheManager, logger))
-```
-
-Cache flow:
-
-1. Check cache for canonical path + language
-2. If hit, serve cached response
-3. If miss, generate and cache response
-4. Respect cache strategy (static/incremental/dynamic)
-
-### Caching Headers
-
-Set cache-related headers:
+Add browser cache headers:
 
 ```go
 r.Use(middleware.CachingHeaders(devMode))
 ```
 
-Headers for static assets:
+Cache behavior:
+- **Dev mode**: `no-cache`
+- **Production**: Based on route strategy
 
-```
-Cache-Control: public, max-age=31536000, immutable
+### Layout Data Middleware
+
+Inject shared data into all templates:
+
+```go
+layoutData := map[string]interface{}{
+    "SiteName": "My Site",
+    "Year":     2024,
+}
+r.Use(middleware.LayoutDataMiddleware(layoutData))
 ```
 
-Headers for HTML in dev mode:
-
-```
-Cache-Control: no-cache
+Access in templates:
+```html
+<h1>{{.SiteName}}</h1>
 ```
 
 ### Canonical Path Middleware
 
-Store route metadata in context:
+Store and validate canonical paths:
 
 ```go
 r.Use(router.CanonicalPathMiddleware(routeRegistry))
 ```
 
-Sets context values:
+### Cache Middleware
 
-- `CanonicalPathKey` - Canonical path
-- `PageTitleKey` - Page title translation key
-- `StrategyKey` - Cache strategy
-
-### Layout Data Middleware
-
-Inject shared data for templates:
+Response caching with automatic invalidation:
 
 ```go
-r.Use(middleware.LayoutDataMiddleware(logger))
+r.Use(middleware.CacheMiddleware(cacheManager, logger))
 ```
 
-Available in templates:
+### Webhook Auth Middleware
+
+Validate webhook requests:
 
 ```go
-{{.Layout.SiteURL}}
-```
-
-### Redirect Middleware
-
-Handle static redirects:
-
-```go
-redirectRegistry, _ := middleware.LoadRedirectsFromJSON(
-    configFS,
-    "redirects.json",
-    logger,
-)
-
-r.Use(middleware.RedirectMiddleware(redirectRegistry, logger))
-```
-
-Redirects format:
-
-```json
-{
-  "/old-path": ["/new-path"],
-  "/another-old": ["/another-new"]
-}
-```
-
-### Webhook Authentication
-
-Authenticate webhook requests:
-
-```go
-webhookAuth := middleware.WebhookSecretAuth("your-secret", logger)
-r.With(webhookAuth).Patch("/webhook/revalidate", handler)
-```
-
-Uses HMAC signature verification.
-
-## Custom Middleware
-
-Create custom middleware:
-
-```go
-func MyMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        // Before handler
-        ctx := r.Context()
-
-        // Do something
-        customValue := "value"
-
-        // Add to context
-        ctx = context.WithValue(ctx, "customKey", customValue)
-
-        // Call next
-        next.ServeHTTP(w, r.WithContext(ctx))
-
-        // After handler
-    })
-}
+r.Use(middleware.WebhookAuthMiddleware("my-secret-key"))
 ```
 
 ## Middleware Order
 
-Order matters! General guidelines:
-
-1. **First**: Logging, recovery
-2. **Security**: IP ban, rate limit, honeypot
-3. **Performance**: Compression, cache
-4. **Routing**: Language, canonical path
-5. **Last**: Application handlers
-
-## Context Keys
-
-Access middleware values from context:
+The recommended order is important:
 
 ```go
-// Language
-lang := middleware.GetLanguage(r.Context())
-
-// Canonical path
-canonical := router.GetCanonicalPath(r.Context())
-
-// Cache strategy
-strategy := router.GetStrategy(r.Context())
-
-// Layout data
-layoutData := middleware.GetLayoutData(r.Context())
+r.Use(middleware.StructuredLogger(logger))           // 1. Log everything
+r.Use(chiMiddleware.Recoverer)                        // 2. Panic recovery
+r.Use(middleware.IPBanMiddleware(ipBanList, logger))  // 3. Block banned IPs
+r.Use(middleware.HoneypotMiddleware(ipBanList, paths, logger)) // 4. Trap bots
+r.Use(middleware.RateLimiter(config))                 // 5. Rate limit
+r.Use(middleware.Compression())                       // 6. Compress responses
+r.Use(middleware.SecurityHeadersSimple())             // 7. Security headers
+r.Use(middleware.CachingHeaders(devMode))             // 8. Cache headers
+r.Use(middleware.Language(i18nInstance, config))      // 9. Language detection
+r.Use(router.CanonicalPathMiddleware(routeRegistry))  // 10. Validate paths
+r.Use(middleware.CacheMiddleware(cacheManager, logger)) // 11. Response cache
 ```
 
-## Conditional Middleware
+## Custom Middleware
 
-Skip middleware for certain paths:
+Create your own middleware:
 
 ```go
-func ConditionalMiddleware(skipPaths []string) func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            for _, path := range skipPaths {
-                if r.URL.Path == path {
-                    next.ServeHTTP(w, r)
-                    return
-                }
-            }
-            // Apply middleware
-        })
-    }
+func MyMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Before request
+        start := time.Now()
+
+        // Call next handler
+        next.ServeHTTP(w, r)
+
+        // After request
+        duration := time.Since(start)
+        log.Println("Request took", duration)
+    })
 }
 ```
+
+Use it:
+```go
+r.Use(MyMiddleware)
+```
+
+## Chi Middleware
+
+Statigo is built on chi. You can use any chi middleware:
+
+```go
+import chiMiddleware "github.com/go-chi/chi/middleware"
+
+r.Use(chiMiddleware.RequestID)
+r.Use(chiMiddleware.RealIP)
+r.Use(chiMiddleware.Logger)
+r.Use(chiMiddleware.Recoverer)
+```
+
+See [chi documentation](https://github.com/go-chi/chi) for more.

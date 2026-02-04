@@ -20,6 +20,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"statigo/example/handlers"
+	docsHandlers "statigo/example/handlers/docs"
 	"statigo/framework/cache"
 	"statigo/framework/health"
 	"statigo/framework/i18n"
@@ -104,12 +105,14 @@ func main() {
 	// Initialize example handlers
 	indexHandler := handlers.NewIndexHandler(renderer, cacheManager, routeRegistry)
 	aboutHandler := handlers.NewAboutHandler(renderer, cacheManager)
+	docsHandler := docsHandlers.NewHandler(renderer, seoHelpers, GetDocsFS(), appLogger, baseURL)
 	notFoundHandler := handlers.NewNotFoundHandler(renderer)
 
 	// Create custom handlers map for route loader
 	customHandlers := map[string]http.HandlerFunc{
 		"index": indexHandler.ServeHTTP,
 		"about": aboutHandler.ServeHTTP,
+		"docs":  docsHandler.ServeHTTP,
 	}
 
 	// Load routes from JSON configuration

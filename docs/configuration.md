@@ -1,96 +1,79 @@
 # Configuration
 
-Statigo uses environment variables and JSON files for configuration.
+Statigo uses environment variables and JSON configuration files for flexible application configuration.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure:
+Create a `.env` file in your project root:
 
 ```bash
-cp .env.example .env
+# Server Configuration
+PORT=8080
+BASE_URL=http://localhost:8080
+
+# Logging
+LOG_LEVEL=INFO
+
+# Cache
+CACHE_DIR=./data/cache
+DISABLE_CACHE=false
+
+# Rate Limiting
+RATE_LIMIT_RPS=10
+RATE_LIMIT_BURST=20
+
+# Development
+DEV_MODE=false
+
+# Shutdown Timeout
+SHUTDOWN_TIMEOUT=30
+
+# Webhook Secret (for cache invalidation)
+WEBHOOK_SECRET=your-webhook-secret-key
+
+# Google Tag Manager (optional)
+GTM_ID=GTM-XXXXX
 ```
 
 ### Server Configuration
 
-```bash
-# Server port (default: 8080)
-PORT=8080
-
-# Base URL for canonical URLs and sitemaps
-BASE_URL=http://localhost:8080
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8080` | HTTP server port |
+| `BASE_URL` | `http://localhost:8080` | Base URL for canonical links |
+| `DEV_MODE` | `false` | Enable development mode |
 
 ### Logging
 
-```bash
-# Log level: DEBUG, INFO, WARN, ERROR (default: INFO)
-LOG_LEVEL=INFO
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOG_LEVEL` | `INFO` | Log level: `DEBUG`, `INFO`, `WARN`, `ERROR` |
 
-# Log format: BRACKET, JSON (default: BRACKET)
-LOG_FORMAT=BRACKET
-```
+### Cache
 
-### Cache Configuration
-
-```bash
-# Cache directory (default: ./data/cache)
-CACHE_DIR=./data/cache
-
-# Hour for daily cache revalidation (0-23, default: 3)
-CACHE_REVALIDATION_HOUR=3
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CACHE_DIR` | `./data/cache` | Cache storage directory |
+| `DISABLE_CACHE` | `false` | Disable caching (for testing) |
 
 ### Rate Limiting
 
-```bash
-# Requests per second (default: 10)
-RATE_LIMIT_RPS=10
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RATE_LIMIT_RPS` | `10` | Requests per second |
+| `RATE_LIMIT_BURST` | `20` | Burst size |
 
-# Maximum burst size (default: 20)
-RATE_LIMIT_BURST=20
-```
+### Security
 
-### HTTP Client
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WEBHOOK_SECRET` | - | Secret for webhook authentication |
 
-```bash
-# Overall request timeout in seconds (default: 30)
-HTTP_TIMEOUT=30
-
-# Connection timeout in seconds (default: 10)
-HTTP_CONNECT_TIMEOUT=10
-
-# TLS handshake timeout in seconds (default: 10)
-HTTP_TLS_TIMEOUT=10
-
-# Idle connection timeout in seconds (default: 90)
-HTTP_IDLE_TIMEOUT=90
-
-# Maximum retry attempts (default: 3)
-HTTP_MAX_RETRIES=3
-
-# Base delay for exponential backoff in ms (default: 500)
-HTTP_RETRY_BASE_DELAY=500
-```
-
-### Graceful Shutdown
-
-```bash
-# Graceful shutdown timeout in seconds (default: 30)
-SHUTDOWN_TIMEOUT=30
-```
-
-### Webhook (Optional)
-
-```bash
-# Secret for webhook authentication
-WEBHOOK_SECRET=your-webhook-secret-here
-```
-
-## JSON Configuration Files
+## Route Configuration
 
 ### routes.json
 
-Define all application routes:
+Define routes in `config/routes.json`:
 
 ```json
 {
@@ -110,64 +93,108 @@ Define all application routes:
 }
 ```
 
+### Route Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `canonical` | string | Yes | Internal canonical path |
+| `paths` | object | Yes | Language-specific URL paths |
+| `strategy` | string | Yes | Caching strategy |
+| `template` | string | Yes | Template file name |
+| `handler` | string | Yes | Handler name for customHandlers map |
+| `title` | string | No | Page title or i18n key |
+
+### Caching Strategies
+
+- `immutable` - Never expires (static assets)
+- `static` - Long cache, revalidate when stale
+- `incremental` - Auto-revalidate after 24 hours
+- `dynamic` - Always revalidate when stale
+
+## Redirect Configuration
+
 ### redirects.json
 
-Static URL redirects:
+Define redirects in `config/redirects.json`:
 
 ```json
 {
-  "/old-path": ["/new-path"],
-  "/another-old": ["/another-new"]
+  "redirects": [
+    {
+      "from": "/old-page",
+      "to": "/new-page",
+      "type": 301
+    },
+    {
+      "from": "/blog/*",
+      "to": "/articles/*",
+      "type": 301,
+      "pattern": true
+    }
+  ]
 }
 ```
 
-## File Structure
+### Redirect Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `from` | string | Source path (supports `*` wildcard) |
+| `to` | string | Destination path (use `*` for matched part) |
+| `type` | number | HTTP status code (301 or 302) |
+| `pattern` | boolean | Enable wildcard matching |
+
+## Translation Configuration
+
+Translation files are stored in `translations/` directory:
 
 ```
-.
-├── .env                  # Environment variables (not in git)
-├── .env.example          # Environment template
-├── config/
-│   ├── routes.json      # Route definitions
-│   └── redirects.json   # Redirect mappings
-├── data/
-│   ├── cache/           # Cache storage
-│   └── banned-ips.json  # IP ban list (auto-created)
-└── translations/
-    ├── en.json          # English translations
-    └── tr.json          # Turkish translations
+translations/
+├── en.json    # English
+├── tr.json    # Turkish
+└── de.json    # German
 ```
 
-## Loading Configuration
+### Translation File Format
+
+```json
+{
+  "site": {
+    "name": "My Site",
+    "description": "A description"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  }
+}
+```
+
+## Accessing Configuration in Go
 
 ### Environment Variables
 
-Using godotenv:
-
 ```go
-import "github.com/joho/godotenv"
+import "statigo/framework/utils"
 
-func main() {
-    // Load .env file
-    if err := godotenv.Load(); err != nil {
-        log.Println("No .env file, using defaults")
-    }
-
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "8080"
-    }
+port := os.Getenv("PORT")
+if port == "" {
+    port = "8080"
 }
+
+// Or use helper
+rateLimitRPS := utils.GetEnvInt("RATE_LIMIT_RPS", 10)
+rateLimitBurst := utils.GetEnvInt("RATE_LIMIT_BURST", 20)
 ```
 
-### Routes
+### Loading Routes
 
 ```go
 import "statigo/framework/router"
 
 routeRegistry := router.NewRegistry([]string{"en", "tr"})
 
-router.LoadRoutesFromJSON(
+err := router.LoadRoutesFromJSON(
     configFS,
     "routes.json",
     routeRegistry,
@@ -177,216 +204,87 @@ router.LoadRoutesFromJSON(
 )
 ```
 
-### Redirects
+### Loading Redirects
 
 ```go
 import "statigo/framework/middleware"
 
-redirectRegistry, err := middleware.LoadRedirectsFromJSON(
+r.Use(middleware.RedirectMiddleware(
     configFS,
     "redirects.json",
     logger,
-)
+))
 ```
 
-## Default Values
+## Configuration Best Practices
 
-| Variable                  | Default               | Description       |
-| ------------------------- | --------------------- | ----------------- |
-| `PORT`                    | 8080                  | Server port       |
-| `BASE_URL`                | http://localhost:8080 | Base URL          |
-| `LOG_LEVEL`               | INFO                  | Logging level     |
-| `LOG_FORMAT`              | BRACKET               | Log format        |
-| `CACHE_DIR`               | ./data/cache          | Cache directory   |
-| `CACHE_REVALIDATION_HOUR` | 3                     | Revalidation hour |
-| `RATE_LIMIT_RPS`          | 10                    | Rate limit        |
-| `RATE_LIMIT_BURST`        | 20                    | Burst size        |
-| `HTTP_TIMEOUT`            | 30                    | Request timeout   |
-| `SHUTDOWN_TIMEOUT`        | 30                    | Shutdown timeout  |
+1. **Never commit `.env`** - Add to `.gitignore`
+2. **Use `.env.example`** - Template for required variables
+3. **Validate configuration** - Check for required variables on startup
+4. **Use sensible defaults** - Provide defaults for optional settings
+5. **Document variables** - Explain what each variable does
 
-## Configuration Helpers
+## Example Configuration
 
-### Get Environment Variable with Default
-
-```go
-import "statigo/framework/utils"
-
-port := utils.GetEnvString("PORT", "8080")
-debug := utils.GetEnvBool("DEBUG", false)
-timeout := utils.GetEnvInt("TIMEOUT", 30)
-```
-
-### Required Environment Variables
-
-```go
-func checkRequiredEnv(vars []string) {
-    for _, v := range vars {
-        if os.Getenv(v) == "" {
-            log.Fatalf("Required env var %s is missing", v)
-        }
-    }
-}
-
-checkRequiredEnv([]string{"BASE_URL", "CACHE_DIR"})
-```
-
-## Production Configuration
-
-### .env for Production
+### Production (.env.production)
 
 ```bash
-# Server
 PORT=8080
 BASE_URL=https://example.com
-
-# Logging
 LOG_LEVEL=WARN
-LOG_FORMAT=JSON
-
-# Cache
-CACHE_DIR=/var/cache/statigo
-CACHE_REVALIDATION_HOUR=3
-
-# Rate limiting
-RATE_LIMIT_RPS=100
-RATE_LIMIT_BURST=200
-
-# HTTP client
-HTTP_TIMEOUT=10
-HTTP_CONNECT_TIMEOUT=5
-HTTP_TLS_TIMEOUT=5
-
-# Security
-WEBHOOK_SECRET=${WEBHOOK_SECRET}
+DEV_MODE=false
+RATE_LIMIT_RPS=20
+RATE_LIMIT_BURST=40
+WEBHOOK_SECRET=prod-secret-key
 ```
 
-### systemd Service
-
-```ini
-[Unit]
-Description=Statigo Web Application
-After=network.target
-
-[Service]
-Type=simple
-User=statigo
-WorkingDirectory=/opt/statigo
-Environment="PORT=8080"
-Environment="BASE_URL=https://example.com"
-Environment="LOG_LEVEL=WARN"
-Environment="CACHE_DIR=/var/cache/statigo"
-ExecStart=/opt/statigo/statigo
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-## Development Configuration
-
-### .env for Development
+### Development (.env.development)
 
 ```bash
-# Server
-PORT=8080
-BASE_URL=http://localhost:8080
-
-# Logging
+PORT=3000
+BASE_URL=http://localhost:3000
 LOG_LEVEL=DEBUG
-LOG_FORMAT=BRACKET
-
-# Cache (optional, disable for faster development)
-# CACHE_DIR=/tmp/statigo-cache
-
-# Rate limiting (relaxed for dev)
+DEV_MODE=true
 RATE_LIMIT_RPS=100
 RATE_LIMIT_BURST=200
+```
 
-# Development mode (disables static caching)
+### Testing (.env.test)
+
+```bash
+PORT=8081
+BASE_URL=http://localhost:8081
+LOG_LEVEL=ERROR
 DEV_MODE=true
+DISABLE_CACHE=true
+RATE_LIMIT_RPS=1000
 ```
 
-## Secrets Management
+## Loading Environment Files
 
-### Never Commit .env
-
-The `.gitignore` already excludes `.env`:
-
-```gitignore
-# environment variables
-.env
-```
-
-### Using Secret Managers
-
-For production, use a secret manager:
+Statigo uses `godotenv` for loading `.env` files:
 
 ```go
-import (
-    os"
-    vault "github.com/hashicorp/vault/api"
-)
+import "github.com/joho/godotenv"
 
-func getSecret(key string) string {
-    // Try environment first
-    if val := os.Getenv(key); val != "" {
-        return val
+func main() {
+    // Load .env file
+    if err := godotenv.Load(); err != nil {
+        log.Println("Warning: No .env file found, using defaults")
     }
 
-    // Fall back to vault
-    client := vault.DefaultClient()
-    secret, _ := client.Logical().Read("secret/statigo/" + key)
-    return secret.Data["value"].(string)
+    // Your application code...
 }
 ```
 
-## Configuration Validation
-
-Validate configuration on startup:
+For environment-specific files:
 
 ```go
-func validateConfig() error {
-    // Check required variables
-    if os.Getenv("BASE_URL") == "" {
-        return errors.New("BASE_URL is required")
-    }
-
-    // Validate port
-    port := utils.GetEnvInt("PORT", 8080)
-    if port < 1 || port > 65535 {
-        return errors.New("PORT must be between 1 and 65535")
-    }
-
-    // Validate cache directory
-    cacheDir := os.Getenv("CACHE_DIR")
-    if cacheDir != "" {
-        if err := os.MkdirAll(cacheDir, 0755); err != nil {
-            return fmt.Errorf("cannot create cache directory: %w", err)
-        }
-    }
-
-    return nil
+env := os.Getenv("APP_ENV")
+if env == "" {
+    env = "development"
 }
-```
 
-## Hot Reload
-
-Configuration changes require restart:
-
-```bash
-# Using Air for development
-make dev
-
-# Air watches for file changes and restarts
-```
-
-For production, use graceful restart:
-
-```bash
-# Send SIGTERM to trigger graceful shutdown
-kill -TERM $(pidof statigo)
-
-# Start new instance (systemd handles this)
-systemctl restart statigo
+godotenv.Load(".env." + env)
+godotenv.Load() // Load default .env as fallback
 ```

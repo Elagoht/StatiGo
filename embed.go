@@ -19,6 +19,9 @@ var translationsFS embed.FS
 //go:embed config
 var configFS embed.FS
 
+//go:embed docs
+var docsFS embed.FS
+
 // GetTemplatesFS returns the embedded templates filesystem
 func GetTemplatesFS() fs.FS {
 	// Since we embed ../templates, the path in the embed.FS is "templates"
@@ -55,6 +58,16 @@ func GetConfigFS() fs.FS {
 	sub, err := fs.Sub(configFS, "config")
 	if err != nil {
 		panic("failed to get config sub-filesystem: " + err.Error())
+	}
+	return sub
+}
+
+// GetDocsFS returns the embedded docs filesystem
+func GetDocsFS() fs.FS {
+	// Since we embed ../docs, the path in the embed.FS is "docs"
+	sub, err := fs.Sub(docsFS, "docs")
+	if err != nil {
+		panic("failed to get docs sub-filesystem: " + err.Error())
 	}
 	return sub
 }

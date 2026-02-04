@@ -1,8 +1,8 @@
 # Routing
 
-Statigo uses a configuration-driven routing system with built-in multi-language support and SEO features.
+Statigo's routing system provides multi-language URL mapping with SEO optimization.
 
-## Route Definition
+## Route Configuration
 
 Routes are defined in `config/routes.json`:
 
@@ -24,257 +24,166 @@ Routes are defined in `config/routes.json`:
 }
 ```
 
-### Route Properties
+### Route Fields
 
-| Property    | Type   | Required          | Description                                           |
-| ----------- | ------ | ----------------- | ----------------------------------------------------- |
-| `canonical` | string | Yes               | Canonical path identifier                             |
-| `paths`     | object | Yes               | Language-specific URL paths                           |
-| `strategy`  | string | No                | Cache strategy (static/incremental/dynamic/immutable) |
-| `template`  | string | Handler-dependent | Template filename                                     |
-| `handler`   | string | No                | Handler name to use                                   |
-| `title`     | string | No                | Translation key for page title                        |
+| Field | Type | Description |
+|-------|------|-------------|
+| `canonical` | string | Internal canonical path (used for lookups) |
+| `paths` | object | Language-specific URL paths |
+| `strategy` | string | Caching strategy: `static`, `incremental`, `dynamic`, `immutable` |
+| `template` | string | Template file to render |
+| `handler` | string | Handler name (registered in `customHandlers` map) |
+| `title` | string | Page title (can be i18n key or literal) |
 
-## Canonical Paths
+## Multi-Language Routing
 
-The canonical path is the internal identifier for a route. It's used for:
+### Defining Language-Specific Paths
 
-- Cache key generation
-- SEO canonical URLs
-- Translation lookups
-
-```go
-// Get canonical path from request context
-canonical := router.GetCanonicalPath(r.Context())
-// canonical = "/about"
-```
-
-## Language Paths
-
-Each route defines paths for supported languages:
+Each route can have different URLs per language:
 
 ```json
 {
-  "canonical": "/products/{id}",
+  "canonical": "/features",
   "paths": {
-    "en": "/en/products/{id}",
-    "tr": "/tr/urunler/{id}"
+    "en": "/en/features",
+    "tr": "/tr/ozellikler",
+    "de": "/de/funktionen"
   }
 }
 ```
 
-Path parameters (like `{id}`) are preserved and passed to handlers.
+### Accessing Current Language
 
-## Handlers
-
-### Built-in Handlers
-
-#### `content` Handler
-
-Renders a template with default data:
-
-```json
-{
-  "canonical": "/",
-  "paths": { "en": "/en" },
-  "template": "index.html",
-  "handler": "content"
-}
-```
-
-The template receives:
+In your handlers:
 
 ```go
-{
-    "Lang": "en",
-    "Canonical": "/",
-    "Data": {},
-    "Layout": {...},
-    "WebAppURL": "https://..."
-}
-```
+import "statigo/framework/middleware"
 
-### Custom Handlers
-
-Register custom handlers in `main.go`:
-
-```go
-customHandlers := map[string]http.HandlerFunc{
-    "index": myIndexHandler.ServeHTTP,
-    "about": myAboutHandler.ServeHTTP,
-}
-
-router.LoadRoutesFromJSON(
-    configFS,
-    "routes.json",
-    registry,
-    renderer,
-    customHandlers,
-    logger,
-)
-```
-
-Example handler:
-
-```go
-type IndexHandler struct {
-    renderer     *templates.Renderer
-    cacheManager *cache.Manager
-}
-
-func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     lang := middleware.GetLanguage(r.Context())
-    canonical := router.GetCanonicalPath(r.Context())
-
-    data := map[string]interface{}{
-        "Lang":      lang,
-        "Canonical": canonical,
-        "Title":     h.renderer.GetTranslation(lang, "pages.home.title"),
-    }
-
-    h.renderer.Render(w, "index.html", data)
+    // lang is "en", "tr", etc.
 }
 ```
 
-## Route Registration
+In your templates:
 
-Routes are automatically registered with the router:
-
-```go
-routeRegistry.RegisterRoutes(r, func(h http.Handler) http.Handler {
-    // Optional wrapper middleware
-    return h
-})
+```html
+<p>Current language: {{.Lang}}</p>
 ```
-
-## Dynamic Routes
-
-Use path parameters for dynamic routes:
-
-```json
-{
-  "canonical": "/blog/{slug}",
-  "paths": {
-    "en": "/en/blog/{slug}",
-    "tr": "/tr/blog/{slug}"
-  },
-  "strategy": "incremental",
-  "template": "blog.html",
-  "handler": "blog"
-}
-```
-
-Access parameters in handlers:
-
-```go
-// Using chi URL params
-slug := chi.URLParam(r, "slug")
-```
-
-## Cache Strategies
-
-| Strategy      | Description                                 | Use Case                      |
-| ------------- | ------------------------------------------- | ----------------------------- |
-| `static`      | Cached indefinitely, no expiration          | Pages, evergreen content      |
-| `immutable`   | Same as static, for truly immutable content | Assets, archived content      |
-| `incremental` | Time-based revalidation                     | Lists, indexes, feeds         |
-| `dynamic`     | Not cached                                  | User-specific, real-time data |
 
 ## SEO Features
 
 ### Canonical URLs
 
-Automatically generated from canonical path:
+Statigo automatically generates canonical URLs:
 
 ```html
-<link rel="canonical" href="https://example.com/about" />
+<link rel="canonical" href="{{canonicalURL "/about" .Lang}}">
 ```
 
-### Hreflang Links
+### Alternate Links (Hreflang)
 
-Alternate language links for SEO:
+Generate hreflang links for SEO:
 
 ```html
-<link rel="alternate" hreflang="en" href="https://example.com/en/about" />
-<link rel="alternate" hreflang="tr" href="https://example.com/tr/hakkinda" />
-<link
-  rel="alternate"
-  hreflang="x-default"
-  href="https://example.com/en/about"
-/>
+{{alternateLinks "/about"}}
 ```
 
-### Template Functions
+Output:
+```html
+<link rel="alternate" hreflang="en" href="https://example.com/en/about">
+<link rel="alternate" hreflang="tr" href="https://example.com/tr/hakkinda">
+<link rel="alternate" hreflang="x-default" href="https://example.com/en/about">
+```
+
+### Locale-Aware Links
+
+Use `localePath` for translated URLs:
 
 ```html
-{{canonicalURL .Canonical .Lang}}
-{{alternateLinks .Canonical}}
-{{alternateURLs .Canonical}}
-{{localePath "/about" .Lang}}
+<a href="{{localePath "/about" .Lang}}">About</a>
 ```
 
-The `localePath` function is the recommended way to generate links in templates. It automatically looks up the correct URL for each language from the route registry.
+This automatically resolves to:
+- `/en/about` for English
+- `/tr/hakkinda` for Turkish
 
-```html
-<a href="{{localePath "/about" .Lang}}">{{t .Lang "nav.about"}}</a>
-<!-- English: /en/about -->
-<!-- Turkish: /tr/hakkinda -->
-```
+## Canonical Path Middleware
 
-## Route Lookup
-
-### By Path
+The `CanonicalPathMiddleware` ensures users are redirected to the correct language-specific URL:
 
 ```go
-route := registry.GetByPath("/en/about")
-// Returns RouteDefinition for /about canonical
+r.Use(router.CanonicalPathMiddleware(routeRegistry))
 ```
 
-### By Canonical
+Example redirects:
+- `/about` → `/en/about` (for English users)
+- `/about` → `/tr/hakkinda` (for Turkish users)
+
+## Programmatic Route Registration
 
 ```go
-route := registry.GetByCanonical("/about")
-// Returns RouteDefinition
+import "statigo/framework/router"
+
+// Create registry
+routeRegistry := router.NewRegistry([]string{"en", "tr"})
+
+// Define a route programmatically
+routeRegistry.Register(router.RouteDefinition{
+    Canonical: "/contact",
+    Paths: map[string]string{
+        "en": "/en/contact",
+        "tr": "/tr/iletisim",
+    },
+    Strategy: "static",
+    Template: "contact.html",
+    Handler:  "contact",
+    Title:    "pages.contact.title",
+})
+
+// Register routes with chi router
+routeRegistry.RegisterRoutes(r, nil)
 ```
 
-### Get Path for Language (Go code)
+## Dynamic Routes
+
+For dynamic routes (e.g., blog posts), use chi's route parameters:
 
 ```go
-seoHelpers := router.NewSEOHelpers(registry, baseURL)
-path := seoHelpers.GetLocalePath("/about", "tr")
-// Returns "/tr/hakkinda"
+r.Get("/{lang}/blog/{slug}", blogHandler.ServeHTTP)
 ```
 
-## Advanced Patterns
+Access parameters in your handler:
 
-### Route Groups
+```go
+slug := chi.URLParam(r, "slug")
+lang := middleware.GetLanguage(r.Context())
+```
 
-Organize related routes by canonical prefix:
+## Redirects
+
+Configure static redirects in `config/redirects.json`:
 
 ```json
 {
-  "canonical": "/blog",
-  "paths": {"en": "/en/blog"},
-  "strategy": "incremental"
-},
-{
-  "canonical": "/blog/{slug}",
-  "paths": {"en": "/en/blog/{slug}"},
-  "strategy": "static"
+  "redirects": [
+    {
+      "from": "/old-page",
+      "to": "/new-page",
+      "type": 301
+    },
+    {
+      "from": "/blog/*",
+      "to": "/articles/*",
+      "type": 301,
+      "pattern": true
+    }
+  ]
 }
 ```
 
-### Nested Routes
+Apply redirects middleware:
 
-Use canonical hierarchy for organization:
-
-```json
-{
-  "canonical": "/products/category/{cat}",
-  "paths": {"en": "/en/products/category/{cat}"}
-},
-{
-  "canonical": "/products/category/{cat}/{id}",
-  "paths": {"en": "/en/products/{cat}/{id}"}
-}
+```go
+r.Use(middleware.RedirectMiddleware(configFS, "redirects.json", logger))
 ```

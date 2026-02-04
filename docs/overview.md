@@ -1,76 +1,27 @@
-# Statigo Overview
+# Overview
 
-Statigo is a production-ready Go web framework designed for static-first, SEO-optimized websites. It was extracted from real-world production systems handling high-traffic landing pages.
+Statigo is a production-ready Go web framework designed for building high-performance, SEO-optimized, multi-language websites with static-first architecture.
 
-## Design Philosophy
+## What is Statigo?
 
-### Static-First Approach
+Statigo extracts proven patterns from production landing page systems and provides them as an easy-to-use framework. It's built for developers who need:
 
-Statigo is optimized for serving pre-rendered HTML content with intelligent caching:
+- **Fast page loads** with intelligent caching
+- **SEO optimization** out of the box
+- **Multi-language support** with proper URL routing
+- **Security** with comprehensive middleware
+- **Simple deployment** as a single binary
 
-1. **Prerendering** - Generate static HTML at build time
-2. **Two-tier Cache** - Memory cache for hot content, disk for persistence
-3. **Cache Warming** - Bootstrap cache on startup from previous runs
-4. **Incremental Updates** - Revalidate individual pages via webhooks
+## Key Features
 
-### SEO Optimization
+### Static-First Architecture
+Statigo pre-renders pages and caches them intelligently. This means:
+- First request may be slower (generates cache)
+- Subsequent requests are extremely fast (serves from cache)
+- Cache invalidation happens via webhooks or time-based strategies
 
-Built-in SEO features for modern search engines:
-
-- Canonical URL management
-- Hreflang alternate links for multi-language
-- Structured data (JSON-LD) support
-- Automatic sitemap generation
-- Semantic HTML structure
-
-### Developer Experience
-
-- Configuration-driven routing via JSON
-- Embedded filesystems for single-binary deployment
-- Hot reload during development with Air
-- Semantic CLI commands for common tasks
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         HTTP Request                        │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Middleware Pipeline                       │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐      │
-│  │ Security │ │   Rate   │ │  Cache   │ │ Language │      │
-│  │ Headers  │ │  Limit   │ │  Check   │ │ Detect   │      │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘      │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Route Registry                          │
-│            Canonical Path → Handler + Template              │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Page Handler                            │
-│         Render HTML with i18n + SEO metadata                 │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Cache Layer                             │
-│              Store compressed response                      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Core Concepts
-
-### Canonical Paths
-
-Every page has a canonical path that serves as its identifier:
-
+### Multi-Language Routing
+Built-in support for multiple languages with SEO-friendly URLs:
 ```json
 {
   "canonical": "/about",
@@ -81,53 +32,92 @@ Every page has a canonical path that serves as its identifier:
 }
 ```
 
-### Cache Strategies
+### Caching Strategies
+Choose the right caching strategy for each route:
+- **immutable** - Never expires (e.g., static assets)
+- **static** - Long cache, revalidate when marked stale
+- **incremental** - Auto-revalidate after 24 hours
+- **dynamic** - Always revalidate when stale
 
-- **static** - Never expires (pages, blog posts)
-- **immutable** - Same as static, for truly immutable content
-- **incremental** - Time-based revalidation (lists, indexes)
-- **dynamic** - Not cached (user-specific, real-time)
+### Security Middleware
+Comprehensive security protection included:
+- Rate limiting with token bucket algorithm
+- IP ban list with persistent storage
+- Honeypot traps for bot detection
+- Security headers (CSP, HSTS, X-Frame-Options)
+- Request logging with structured output
 
-### Language Routing
-
-Languages are encoded in the URL path:
+## Architecture
 
 ```
-/en/about    → English version
-/tr/hakkinda → Turkish version
+┌─────────────┐
+│   Client    │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│         Middleware Pipeline             │
+│  ─────────────────────────────────────  │
+│  • Structured Logging                   │
+│  • IP Ban List                          │
+│  • Honeypot Protection                  │
+│  • Rate Limiting                        │
+│  • Compression (Brotli/Gzip)           │
+│  • Security Headers                     │
+│  • Language Detection                   │
+│  • Cache Lookup                         │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│           Route Handler                 │
+│  ─────────────────────────────────────  │
+│  • Page Handler (index, about, etc.)    │
+│  • Template Rendering                   │
+│  • Cache Storage                        │
+└─────────────────────────────────────────┘
 ```
 
-The framework automatically:
+## Project Structure
 
-- Detects language from URL
-- Redirects root to preferred language
-- Sets hreflang links for SEO
-- Passes language to templates
+```
+statigo/
+├── framework/           # Core framework (exported package)
+│   ├── router/         # Multi-language routing
+│   ├── middleware/     # HTTP middleware
+│   ├── cache/          # Two-tier caching
+│   ├── templates/      # HTML rendering
+│   ├── i18n/           # Internationalization
+│   └── ...
+├── example/            # Example application
+│   └── handlers/       # Example handlers
+├── templates/          # HTML templates
+├── static/            # CSS, JS, assets
+├── translations/      # i18n JSON files
+├── config/            # Routes, redirects
+└── docs/              # Documentation (markdown)
+```
 
-## When to Use Statigo
+## Quick Start
 
-Statigo is ideal for:
+1. **Install dependencies:**
+   ```bash
+   go mod download
+   ```
 
-- Marketing landing pages
-- Product documentation sites
-- Company websites
-- Blogs and content sites
-- Multi-language sites
-- High-traffic static content
+2. **Run the server:**
+   ```bash
+   go run .
+   ```
 
-Not recommended for:
+3. **Visit:**
+   - Home: http://localhost:8080/en
+   - About: http://localhost:8080/en/about
+   - Docs: http://localhost:8080/en/docs
 
-- Highly dynamic applications
-- Real-time features
-- Complex user authentication
-- Database-heavy applications
+## Next Steps
 
-## Performance Characteristics
-
-| Metric           | Value                      |
-| ---------------- | -------------------------- |
-| Cold start       | ~50ms                      |
-| Cache hit        | <1ms                       |
-| Cache miss       | ~10-50ms                   |
-| Memory footprint | ~20-50MB                   |
-| Binary size      | ~15-25MB (embedded assets) |
+- [Getting Started](getting-started) - Learn the basics
+- [Routing](routing) - Configure multi-language routes
+- [Middleware](middleware) - Add middleware to your app
+- [Caching](caching) - Understand caching strategies

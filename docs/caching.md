@@ -1,275 +1,151 @@
 # Caching
 
-Statigo implements a sophisticated two-tier caching system designed for high-performance static content delivery.
+Statigo features a two-tier caching system for optimal performance: in-memory caching with disk persistence.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      HTTP Request                           │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │ Memory Cache│  ← First tier (fastest)
-                    └──────┬──────┘
-                           │ Miss
-                           ▼
-                    ┌─────────────┐
-                    │  Disk Cache │  ← Second tier (persistent)
-                    └──────┬──────┘
-                           │ Miss
-                           ▼
-                    ┌─────────────┐
-                    │   Handler   │  ← Generate response
-                    └──────┬──────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │   Store     │  ← Cache for next time
-                    │  (Memory+   │
-                    │   Disk)     │
-                    └─────────────┘
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Request   │────▶│ Memory Cache│────▶│Disk Cache   │
+└─────────────┘     └─────────────┘     └─────────────┘
+                          │
+                          ▼
+                     ┌─────────────┐
+                     │  Brotli     │
+                     │ Compressed  │
+                     └─────────────┘
 ```
-
-## Cache Manager
-
-Initialize the cache manager:
-
-```go
-cacheManager, err := cache.NewManager("./data/cache", logger)
-```
-
-### Memory Cache
-
-- In-memory LRU cache
-- Sub-millisecond access times
-- Configurable size
-- Lost on restart (mitigated by disk cache)
-
-### Disk Cache
-
-- Persistent storage on filesystem
-- Brotli compression for all content
-- Survives restarts
-- Used for cache warming on startup
 
 ## Cache Strategies
 
-### Static
+Each route can have a different caching strategy:
 
-Cached indefinitely, no expiration:
+| Strategy | Description | Use Case |
+|----------|-------------|----------|
+| `immutable` | Never expires | Static assets, versioned files |
+| `static` | Long cache, revalidate when marked stale | Pages that change rarely |
+| `incremental` | Auto-revalidate after 24 hours | Blog posts, articles |
+| `dynamic` | Always revalidate when stale | User-specific content |
 
-```json
-{
-  "canonical": "/about",
-  "strategy": "static"
-}
-```
-
-Use for:
-
-- Pages
-- Evergreen content
-- Blog posts
-
-### Immutable
-
-Same as static, for truly immutable content:
+Define in `config/routes.json`:
 
 ```json
 {
-  "canonical": "/terms",
-  "strategy": "immutable"
+  "canonical": "/",
+  "paths": {"en": "/en"},
+  "strategy": "static",
+  "template": "index.html",
+  "handler": "index"
 }
 ```
 
-Use for:
-
-- Legal pages
-- Archived content
-- Versioned assets
-
-### Incremental
-
-Time-based revalidation:
-
-```json
-{
-  "canonical": "/blog",
-  "strategy": "incremental"
-}
-```
-
-Revalidated daily at configured hour (default: 3 AM):
-
-```bash
-CACHE_REVALIDATION_HOUR=3
-```
-
-Use for:
-
-- List pages
-- Indexes
-- Feeds
-
-### Dynamic
-
-Not cached:
-
-```json
-{
-  "canonical": "/user/profile",
-  "strategy": "dynamic"
-}
-```
-
-Use for:
-
-- User-specific content
-- Real-time data
-- Authentication pages
-
-## Cache Keys
-
-Cache keys are generated from:
-
-```
-{canonical}:{lang}:{params...}
-```
-
-Examples:
-
-- `/about:en` → English about page
-- `/blog:en` → English blog list
-- `/blog/{slug}:en:post-1` → Blog post with parameter
-
-## Cache Warming
-
-On startup, the cache manager loads previously cached entries:
+## Initialization
 
 ```go
-// Automatically done in NewManager
-cacheManager, _ := cache.NewManager(cacheDir, logger)
-// Disk cache entries loaded into memory
-```
+import "statigo/framework/cache"
 
-Benefits:
-
-- First requests are fast (from memory)
-- No cold-start penalty
-- Leverage previous cache runs
-
-## Cache Invalidation
-
-### Manual Invalidation
-
-```go
-cacheManager Invalidate("/about:en")
-```
-
-### Via Webhook
-
-Configure webhook endpoint:
-
-```go
-webhookAuth := middleware.WebhookAuth(secret, logger)
-r.With(webhookAuth).Patch("/webhook/revalidate/static", revalidateHandler)
-```
-
-Trigger revalidation:
-
-```bash
-curl -X PATCH http://localhost:8080/webhook/revalidate/static \
-  -H "X-Webhook-Secret: your-secret" \
-  -H "Content-Type: application/json" \
-  -d '{"paths": ["/about", "/blog"]}'
-```
-
-### CLI Commands
-
-```bash
-# Prerender all routes
-./statigo prerender
-
-# Clear all cache
-./statigo clear-cache
-```
-
-## Cache Entry Structure
-
-```go
-type Entry struct {
-    Key         string
-    Content     []byte      // Compressed content
-    Strategy    string      // static/incremental/dynamic
-    RequestPath string
-    ETag        string
-    CreatedAt   time.Time
-    ExpiresAt   time.Time   // For incremental strategy
+cacheManager, err := cache.NewManager("data/cache", logger)
+if err != nil {
+    log.Fatal(err)
 }
 ```
 
 ## Cache Middleware
 
-The cache middleware automatically:
-
-1. Checks memory cache
-2. Checks disk cache (on memory miss)
-3. Calls handler (on disk miss)
-4. Stores response in both caches
-5. Sets appropriate headers
-
-### Response Headers
-
-```
-X-Cache: HIT
-ETag: "abc123"
-Content-Encoding: br
-```
-
-## Compression
-
-All cached content is compressed using Brotli:
-
-- Better compression than gzip
-- Faster decompression
-- Browser support: 95%+
-
-Compression happens automatically:
-
-- Before storing on disk
-- Before storing in memory
-- Decompressed on cache hit
-
-## Monitoring
-
-### Cache Hit Rate
-
 ```go
-// Access cache statistics (you'd need to add this)
-hitRate := cacheManager.HitRate()
-logger.Info("cache stats", "hit_rate", hitRate)
+r.Use(middleware.CacheMiddleware(cacheManager, logger))
 ```
 
-### Cache Size
+The middleware automatically:
+1. Checks memory cache for existing response
+2. Checks disk cache if memory miss
+3. Executes handler if both miss
+4. Stores response in both tiers
+
+## Pre-rendering
+
+Generate all pages upfront:
 
 ```bash
-# Check disk cache size
-du -sh ./data/cache
+# Build the application
+go build -o statigo
 
-# List cached entries
-ls ./data/cache
+# Prerender all pages
+./statigo prerender
 ```
 
-## Best Practices
+Or programmatically:
 
-1. **Use static strategy** for most content
-2. **Prerender critical pages** on deployment
-3. **Set up webhook revalidation** for CMS updates
-4. **Monitor cache hit rates** in production
-5. **Use incremental** for frequently updated lists
-6. **Avoid dynamic** unless absolutely necessary
+```go
+cacheManager.RebuildAll(r, appLogger)
+```
+
+## Cache Invalidation
+
+### Manual Invalidation
+
+Mark a route as stale:
+
+```go
+cacheManager.MarkStale("/en/about")
+```
+
+### Webhook Invalidation
+
+Configure webhook endpoint:
+
+```go
+r.Post("/cache/webhook", middleware.WebhookInvalidate(
+    cacheManager,
+    os.Getenv("WEBHOOK_SECRET"), // From environment
+    logger,
+))
+```
+
+Send webhook:
+
+```bash
+curl -X POST http://localhost:8080/cache/webhook \
+  -H "X-Webhook-Secret: your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{"canonical": "/about"}'
+```
+
+### Strategy-Based Invalidation
+
+Rebuild by strategy:
+
+```go
+// Rebuild all static pages
+cacheManager.RebuildByStrategy("static", r, logger)
+
+// Rebuild specific route
+cacheManager.RebuildByCanonical("/about", r, logger)
+```
+
+## Cache Storage
+
+### Memory Cache
+
+- Stored in `sync.Map` for concurrent access
+- Compressed with Brotli
+- Automatic ETag generation
+
+### Disk Cache
+
+- Stored in `data/cache/` directory
+- Named by SHA256 hash of canonical path
+- Survives application restarts
+
+## ETag Support
+
+Statigo automatically generates ETags for cache entries:
+
+```
+ETag: "a1b2c3d4e5f6..."
+```
+
+Clients with `If-None-Match` header receive `304 Not Modified` responses.
 
 ## Configuration
 
@@ -279,51 +155,49 @@ Environment variables:
 # Cache directory
 CACHE_DIR=./data/cache
 
-# Revalidation hour (0-23)
-CACHE_REVALIDATION_HOUR=3
+# Disable caching (for testing)
+DISABLE_CACHE=false
 ```
 
-## Example: Full Setup
+## Monitoring
+
+Check cache health:
 
 ```go
-// Initialize cache
-cacheDir := os.Getenv("CACHE_DIR")
-cacheManager, err := cache.NewManager(cacheDir, logger)
-
-// Add cache middleware
-r.Use(middleware.CacheMiddleware(cacheManager, logger))
-
-// Set router for eager revalidation
-cacheManager.SetRouter(r)
-
-// Prerender on startup (optional)
-cli.PrerenderCommand{
-    Router:       r,
-    CacheManager: cacheManager,
-    Logger:       logger,
-}.Execute()
+stats := cacheManager.GetStats()
+fmt.Printf("Memory entries: %d\n", stats.MemoryEntries)
+fmt.Printf("Disk entries: %d\n", stats.DiskEntries)
 ```
 
-## Troubleshooting
+## Best Practices
 
-### Cache Not Working
+1. **Use `immutable` for truly static content**
+   - Assets with version hashes: `/style.v1.css`
+   - Documentation pages
 
-1. Check cache directory permissions
-2. Verify middleware order (cache after canonical path)
-3. Check for `X-Cache: HIT/MISS` headers
-4. Ensure route has cache strategy set
+2. **Use `static` for pages that change rarely**
+   - Home page
+   - About pages
+   - Feature pages
 
-### High Memory Usage
+3. **Use `incremental` for content pages**
+   - Blog posts
+   - Articles
+   - News items
 
-Reduce memory cache size by limiting entries:
+4. **Use `dynamic` for personalized content**
+   - User dashboards
+   - Admin panels
+   - Account settings
 
-```go
-// You'd need to add this option
-cacheManager.SetMaxEntries(1000)
-```
+5. **Prerender after deployment**
+   ```bash
+   go build -o app
+   ./app prerender
+   ./app serve
+   ```
 
-### Stale Content
-
-1. Check revalidation hour setting
-2. Manually clear cache: `./statigo clear-cache`
-3. Verify webhook is firing on content updates
+6. **Set up webhook invalidation**
+   - For CMS integration
+   - For content updates
+   - For automated deployments
