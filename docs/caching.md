@@ -68,6 +68,7 @@ Cached indefinitely, no expiration:
 ```
 
 Use for:
+
 - Pages
 - Evergreen content
 - Blog posts
@@ -84,6 +85,7 @@ Same as static, for truly immutable content:
 ```
 
 Use for:
+
 - Legal pages
 - Archived content
 - Versioned assets
@@ -106,6 +108,7 @@ CACHE_REVALIDATION_HOUR=3
 ```
 
 Use for:
+
 - List pages
 - Indexes
 - Feeds
@@ -122,6 +125,7 @@ Not cached:
 ```
 
 Use for:
+
 - User-specific content
 - Real-time data
 - Authentication pages
@@ -135,6 +139,7 @@ Cache keys are generated from:
 ```
 
 Examples:
+
 - `/about:en` → English about page
 - `/blog:en` → English blog list
 - `/blog/{slug}:en:post-1` → Blog post with parameter
@@ -150,6 +155,7 @@ cacheManager, _ := cache.NewManager(cacheDir, logger)
 ```
 
 Benefits:
+
 - First requests are fast (from memory)
 - No cold-start penalty
 - Leverage previous cache runs
@@ -231,6 +237,7 @@ All cached content is compressed using Brotli:
 - Browser support: 95%+
 
 Compression happens automatically:
+
 - Before storing on disk
 - Before storing in memory
 - Decompressed on cache hit

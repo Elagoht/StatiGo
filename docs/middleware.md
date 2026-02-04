@@ -32,6 +32,7 @@ r.Use(middleware.StructuredLogger(logger))
 ```
 
 Output format:
+
 ```
 [2024-01-15 10:30:45][INFO][request handled][method=GET][path=/en/about][status=200][duration=5ms]
 ```
@@ -45,6 +46,7 @@ r.Use(middleware.Compression())
 ```
 
 Automatically:
+
 - Compresses responses based on Accept-Encoding
 - Prefers Brotli over gzip
 - Minifies CSS/JS/HTML in static files
@@ -65,6 +67,7 @@ r.Use(middleware.RateLimiter(config))
 ```
 
 Headers on rate limit:
+
 ```
 HTTP/1.1 429 Too Many Requests
 Retry-After: 1
@@ -86,6 +89,7 @@ r.Use(middleware.SecurityHeaders(config))
 ```
 
 Headers added:
+
 ```
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Frame-Options: DENY
@@ -104,6 +108,7 @@ r.Use(middleware.IPBanMiddleware(ipBanList, logger))
 ```
 
 Ban list format:
+
 ```json
 {
   "banned": [
@@ -130,6 +135,7 @@ r.Use(middleware.HoneypotMiddleware(ipBanList, honeypotPaths, logger))
 ```
 
 Accessing honeypot paths results in:
+
 - IP added to ban list
 - HTTP 403 response
 - Logged entry
@@ -150,6 +156,7 @@ r.Use(middleware.Language(i18nInstance, config))
 ```
 
 Behavior:
+
 - Extracts language from URL path (e.g., `/tr/about`)
 - Redirects root to detected language
 - Sets language cookie
@@ -164,6 +171,7 @@ r.Use(middleware.CacheMiddleware(cacheManager, logger))
 ```
 
 Cache flow:
+
 1. Check cache for canonical path + language
 2. If hit, serve cached response
 3. If miss, generate and cache response
@@ -178,11 +186,13 @@ r.Use(middleware.CachingHeaders(devMode))
 ```
 
 Headers for static assets:
+
 ```
 Cache-Control: public, max-age=31536000, immutable
 ```
 
 Headers for HTML in dev mode:
+
 ```
 Cache-Control: no-cache
 ```
@@ -196,6 +206,7 @@ r.Use(router.CanonicalPathMiddleware(routeRegistry))
 ```
 
 Sets context values:
+
 - `CanonicalPathKey` - Canonical path
 - `PageTitleKey` - Page title translation key
 - `StrategyKey` - Cache strategy
@@ -209,6 +220,7 @@ r.Use(middleware.LayoutDataMiddleware(logger))
 ```
 
 Available in templates:
+
 ```go
 {{.Layout.SiteURL}}
 ```
@@ -228,6 +240,7 @@ r.Use(middleware.RedirectMiddleware(redirectRegistry, logger))
 ```
 
 Redirects format:
+
 ```json
 {
   "/old-path": ["/new-path"],

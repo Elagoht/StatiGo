@@ -25,21 +25,20 @@ The base layout defines the HTML structure:
 {{define "base"}}
 <!DOCTYPE html>
 <html lang="{{.Lang}}">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{block "title" .}}{{.Title}}{{end}}</title>
 
     {{if .Canonical}}
     <link rel="canonical" href="{{canonicalURL .Canonical .Lang}}" />
-    {{alternateLinks .Canonical}}
-    {{end}}
-</head>
-<body>
+    {{alternateLinks .Canonical}} {{end}}
+  </head>
+  <body>
     {{template "header.html" .}}
     <main>{{block "main" .}}{{end}}</main>
     {{template "footer.html" .}}
-</body>
+  </body>
 </html>
 {{end}}
 ```
@@ -49,13 +48,11 @@ The base layout defines the HTML structure:
 Pages extend the base layout:
 
 ```html
-{{define "title"}}{{t .Lang "pages.about.title"}}{{end}}
-{{template "base" .}}
-
+{{define "title"}}{{t .Lang "pages.about.title"}}{{end}} {{template "base" .}}
 {{define "main"}}
 <section class="page-content">
-    <h1>{{t .Lang "pages.about.heading"}}</h1>
-    <p>{{t .Lang "pages.about.body"}}</p>
+  <h1>{{t .Lang "pages.about.heading"}}</h1>
+  <p>{{t .Lang "pages.about.body"}}</p>
 </section>
 {{end}}
 ```
@@ -79,8 +76,7 @@ Pages extend the base layout:
 Include partial templates:
 
 ```html
-{{template "header.html" .}}
-{{template "footer.html" .}}
+{{template "header.html" .}} {{template "footer.html" .}}
 ```
 
 The `.` passes all data to the partial.
@@ -90,35 +86,25 @@ The `.` passes all data to the partial.
 ### SEO Functions
 
 ```html
-{{canonicalURL .Canonical .Lang}}
-{{alternateLinks .Canonical}}
-{{alternateURLs .Canonical}}
-{{pathForLanguage .Canonical "tr"}}
+{{canonicalURL .Canonical .Lang}} {{alternateLinks .Canonical}} {{alternateURLs
+.Canonical}} {{pathForLanguage .Canonical "tr"}}
 ```
 
 ### Translation Function
 
 ```html
-{{t .Lang "pages.home.title"}}
-{{t .Lang "pages.home.description" "Default description"}}
+{{t .Lang "pages.home.title"}} {{t .Lang "pages.home.description" "Default
+description"}}
 ```
 
 ### Utility Functions
 
 ```html
-{{add 1 2}}           → 3
-{{sub 5 2}}           → 3
-{{div 10 2}}          → 5
-{{mod 10 3}}          → 1
-{{until 5}}           → [0, 1, 2, 3, 4]
-
-{{slugify "Hello World"}}  → "hello-world"
-{{formatDate .Date}}       → "2024-01-15"
-{{formatDateTime .Time}}    → "2024-01-15 10:30"
-
-{{safeHTML "<b>Bold</b>"}}     → <b>Bold</b> (unescaped)
-{{safeURL "http://example.com"}} → http://example.com
-{{prettyJson .Data}}
+{{add 1 2}} → 3 {{sub 5 2}} → 3 {{div 10 2}} → 5 {{mod 10 3}} → 1 {{until 5}} →
+[0, 1, 2, 3, 4] {{slugify "Hello World"}} → "hello-world" {{formatDate .Date}} →
+"2024-01-15" {{formatDateTime .Time}} → "2024-01-15 10:30" {{safeHTML
+"<b>Bold</b>"}} → <b>Bold</b> (unescaped) {{safeURL "http://example.com"}} →
+http://example.com {{prettyJson .Data}}
 ```
 
 ## Passing Data to Templates
@@ -153,14 +139,14 @@ In templates:
 
 Available in all templates:
 
-| Variable | Type | Description |
-|----------|------|-------------|
-| `.Lang` | string | Current language code |
-| `.Canonical` | string | Canonical path |
-| `.Title` | string | Page title |
-| `.Meta` | map | Meta information |
-| `.Layout` | interface{} | Layout data |
-| `.Data` | interface{} | Custom data |
+| Variable     | Type        | Description           |
+| ------------ | ----------- | --------------------- |
+| `.Lang`      | string      | Current language code |
+| `.Canonical` | string      | Canonical path        |
+| `.Title`     | string      | Page title            |
+| `.Meta`      | map         | Meta information      |
+| `.Layout`    | interface{} | Layout data           |
+| `.Data`      | interface{} | Custom data           |
 
 ## Conditional Rendering
 
@@ -168,9 +154,9 @@ Available in all templates:
 
 ```html
 {{if .User}}
-    <p>Welcome, {{.User.Name}}</p>
+<p>Welcome, {{.User.Name}}</p>
 {{else}}
-    <p>Please log in</p>
+<p>Please log in</p>
 {{end}}
 ```
 
@@ -178,7 +164,8 @@ Available in all templates:
 
 ```html
 {{with .User}}
-    <p>{{.Name}}</p>  <!-- . refers to .User -->
+<p>{{.Name}}</p>
+<!-- . refers to .User -->
 {{end}}
 ```
 
@@ -186,7 +173,7 @@ Available in all templates:
 
 ```html
 {{range .Items}}
-    <p>{{.Title}}</p>
+<p>{{.Title}}</p>
 {{end}}
 ```
 
@@ -194,7 +181,7 @@ With index:
 
 ```html
 {{range $index, $item := .Items}}
-    <p>{{$index}}: {{$item.Title}}</p>
+<p>{{$index}}: {{$item.Title}}</p>
 {{end}}
 ```
 
@@ -204,9 +191,9 @@ With index:
 
 ```html
 <ul>
-{{range .Items}}
-    <li>{{.}}</li>
-{{end}}
+  {{range .Items}}
+  <li>{{.}}</li>
+  {{end}}
 </ul>
 ```
 
@@ -214,7 +201,7 @@ With index:
 
 ```html
 {{range $key, $value := .Map}}
-    <p>{{$key}}: {{$value}}</p>
+<p>{{$key}}: {{$value}}</p>
 {{end}}
 ```
 
@@ -225,13 +212,15 @@ Go templates auto-escape HTML by default.
 ### To Escape
 
 ```html
-{{.Content}}  <!-- Escaped -->
+{{.Content}}
+<!-- Escaped -->
 ```
 
 ### To Not Escape (use carefully!)
 
 ```html
-{{safeHTML .Content}}  <!-- Not escaped -->
+{{safeHTML .Content}}
+<!-- Not escaped -->
 ```
 
 ## Custom Template Functions
@@ -253,7 +242,7 @@ funcMap := template.FuncMap{
 Use in templates:
 
 ```html
-{{custom "hello"}}  → HELLO
+{{custom "hello"}} → HELLO
 ```
 
 ## Layout Inheritance
@@ -267,34 +256,31 @@ Use in templates:
 ### Override Blocks
 
 ```html
-{{define "title"}}My Title{{end}}
-{{define "main"}}My Content{{end}}
-{{template "base" .}}
+{{define "title"}}My Title{{end}} {{define "main"}}My Content{{end}} {{template
+"base" .}}
 ```
 
 ## Example: Complete Page Template
 
 ```html
-{{define "title"}}{{t .Lang "pages.services.title"}} | {{t .Lang "branding.name"}}{{end}}
-{{template "base" .}}
-
-{{define "main"}}
+{{define "title"}}{{t .Lang "pages.services.title"}} | {{t .Lang
+"branding.name"}}{{end}} {{template "base" .}} {{define "main"}}
 <section class="services-page">
-    <div class="container">
-        <h1>{{t .Lang "pages.services.heading"}}</h1>
-        <p>{{t .Lang "pages.services.subtitle"}}</p>
+  <div class="container">
+    <h1>{{t .Lang "pages.services.heading"}}</h1>
+    <p>{{t .Lang "pages.services.subtitle"}}</p>
 
-        <div class="services-grid">
-            {{range .Services}}
-            <article class="service-card">
-                <img src="{{.Icon}}" alt="{{.Name}}" />
-                <h3>{{.Name}}</h3>
-                <p>{{.Description}}</p>
-                <a href="{{.URL}}">{{t $.Lang "common.learn_more"}}</a>
-            </article>
-            {{end}}
-        </div>
+    <div class="services-grid">
+      {{range .Services}}
+      <article class="service-card">
+        <img src="{{.Icon}}" alt="{{.Name}}" />
+        <h3>{{.Name}}</h3>
+        <p>{{.Description}}</p>
+        <a href="{{.URL}}">{{t $.Lang "common.learn_more"}}</a>
+      </article>
+      {{end}}
     </div>
+  </div>
 </section>
 {{end}}
 ```
@@ -307,9 +293,9 @@ Check for missing keys:
 
 ```html
 {{if .Title}}
-    <title>{{.Title}}</title>
+<title>{{.Title}}</title>
 {{else}}
-    <title>Default Title</title>
+<title>Default Title</title>
 {{end}}
 ```
 

@@ -26,14 +26,14 @@ Routes are defined in `config/routes.json`:
 
 ### Route Properties
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `canonical` | string | Yes | Canonical path identifier |
-| `paths` | object | Yes | Language-specific URL paths |
-| `strategy` | string | No | Cache strategy (static/incremental/dynamic/immutable) |
-| `template` | string | Handler-dependent | Template filename |
-| `handler` | string | No | Handler name to use |
-| `title` | string | No | Translation key for page title |
+| Property    | Type   | Required          | Description                                           |
+| ----------- | ------ | ----------------- | ----------------------------------------------------- |
+| `canonical` | string | Yes               | Canonical path identifier                             |
+| `paths`     | object | Yes               | Language-specific URL paths                           |
+| `strategy`  | string | No                | Cache strategy (static/incremental/dynamic/immutable) |
+| `template`  | string | Handler-dependent | Template filename                                     |
+| `handler`   | string | No                | Handler name to use                                   |
+| `title`     | string | No                | Translation key for page title                        |
 
 ## Canonical Paths
 
@@ -83,6 +83,7 @@ Renders a template with default data:
 ```
 
 The template receives:
+
 ```go
 {
     "Lang": "en",
@@ -172,12 +173,12 @@ slug := chi.URLParam(r, "slug")
 
 ## Cache Strategies
 
-| Strategy | Description | Use Case |
-|----------|-------------|----------|
-| `static` | Cached indefinitely, no expiration | Pages, evergreen content |
-| `immutable` | Same as static, for truly immutable content | Assets, archived content |
-| `incremental` | Time-based revalidation | Lists, indexes, feeds |
-| `dynamic` | Not cached | User-specific, real-time data |
+| Strategy      | Description                                 | Use Case                      |
+| ------------- | ------------------------------------------- | ----------------------------- |
+| `static`      | Cached indefinitely, no expiration          | Pages, evergreen content      |
+| `immutable`   | Same as static, for truly immutable content | Assets, archived content      |
+| `incremental` | Time-based revalidation                     | Lists, indexes, feeds         |
+| `dynamic`     | Not cached                                  | User-specific, real-time data |
 
 ## SEO Features
 
@@ -196,15 +197,18 @@ Alternate language links for SEO:
 ```html
 <link rel="alternate" hreflang="en" href="https://example.com/en/about" />
 <link rel="alternate" hreflang="tr" href="https://example.com/tr/hakkinda" />
-<link rel="alternate" hreflang="x-default" href="https://example.com/en/about" />
+<link
+  rel="alternate"
+  hreflang="x-default"
+  href="https://example.com/en/about"
+/>
 ```
 
 ### Template Functions
 
 ```html
-{{canonicalURL .Canonical .Lang}}
-{{alternateLinks .Canonical}}
-{{alternateURLs .Canonical}}
+{{canonicalURL .Canonical .Lang}} {{alternateLinks .Canonical}} {{alternateURLs
+.Canonical}}
 ```
 
 ## Route Lookup

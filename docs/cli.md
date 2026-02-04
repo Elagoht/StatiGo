@@ -17,12 +17,14 @@ Generate static HTML for all routes:
 ```
 
 **What it does:**
+
 - Fetches all registered routes
 - Makes HTTP requests to each route
 - Stores responses in cache
 - Warms both memory and disk cache
 
 **Use cases:**
+
 - Initial deployment
 - After cache clear
 - Scheduled cache warming
@@ -39,11 +41,13 @@ Remove all cached content:
 ```
 
 **What it does:**
+
 - Deletes all files from cache directory
 - Clears memory cache
 - Logs number of files deleted
 
 **Use cases:**
+
 - Force refresh all content
 - Free disk space
 - Debug cache issues
@@ -147,6 +151,7 @@ cli.NewPrerenderCommand(cli.PrerenderCommandConfig{
 3. Log statistics (total, success, failed)
 
 **Output:**
+
 ```
 Prerendering routes...
   ✓ /en (200)
@@ -173,6 +178,7 @@ cli.NewClearCacheCommand(cli.ClearCacheCommandConfig{
 4. Log deletion count
 
 **Output:**
+
 ```
 Clearing cache: ./data/cache
 Deleted 42 cache files
@@ -312,7 +318,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
         with:
-          go-version: '1.25'
+          go-version: "1.25"
 
       - name: Build
         run: go build -o statigo .

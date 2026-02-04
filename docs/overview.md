@@ -98,6 +98,7 @@ Languages are encoded in the URL path:
 ```
 
 The framework automatically:
+
 - Detects language from URL
 - Redirects root to preferred language
 - Sets hreflang links for SEO
@@ -123,10 +124,10 @@ Not recommended for:
 
 ## Performance Characteristics
 
-| Metric | Value |
-|--------|-------|
-| Cold start | ~50ms |
-| Cache hit | <1ms |
-| Cache miss | ~10-50ms |
-| Memory footprint | ~20-50MB |
-| Binary size | ~15-25MB (embedded assets) |
+| Metric           | Value                      |
+| ---------------- | -------------------------- |
+| Cold start       | ~50ms                      |
+| Cache hit        | <1ms                       |
+| Cache miss       | ~10-50ms                   |
+| Memory footprint | ~20-50MB                   |
+| Binary size      | ~15-25MB (embedded assets) |

@@ -184,13 +184,13 @@ Create `templates/pages/index.html`:
 {{define "base"}}
 <!DOCTYPE html>
 <html lang="{{.Lang}}">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{{t .Lang "pages.home.title"}}</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>{{t .Lang "pages.home.heading"}}</h1>
-</body>
+  </body>
 </html>
 {{end}}
 ```

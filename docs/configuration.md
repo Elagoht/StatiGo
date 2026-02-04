@@ -191,18 +191,18 @@ redirectRegistry, err := middleware.LoadRedirectsFromJSON(
 
 ## Default Values
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 8080 | Server port |
-| `BASE_URL` | http://localhost:8080 | Base URL |
-| `LOG_LEVEL` | INFO | Logging level |
-| `LOG_FORMAT` | BRACKET | Log format |
-| `CACHE_DIR` | ./data/cache | Cache directory |
-| `CACHE_REVALIDATION_HOUR` | 3 | Revalidation hour |
-| `RATE_LIMIT_RPS` | 10 | Rate limit |
-| `RATE_LIMIT_BURST` | 20 | Burst size |
-| `HTTP_TIMEOUT` | 30 | Request timeout |
-| `SHUTDOWN_TIMEOUT` | 30 | Shutdown timeout |
+| Variable                  | Default               | Description       |
+| ------------------------- | --------------------- | ----------------- |
+| `PORT`                    | 8080                  | Server port       |
+| `BASE_URL`                | http://localhost:8080 | Base URL          |
+| `LOG_LEVEL`               | INFO                  | Logging level     |
+| `LOG_FORMAT`              | BRACKET               | Log format        |
+| `CACHE_DIR`               | ./data/cache          | Cache directory   |
+| `CACHE_REVALIDATION_HOUR` | 3                     | Revalidation hour |
+| `RATE_LIMIT_RPS`          | 10                    | Rate limit        |
+| `RATE_LIMIT_BURST`        | 20                    | Burst size        |
+| `HTTP_TIMEOUT`            | 30                    | Request timeout   |
+| `SHUTDOWN_TIMEOUT`        | 30                    | Shutdown timeout  |
 
 ## Configuration Helpers
 
