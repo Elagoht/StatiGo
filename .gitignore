@@ -1,0 +1,18 @@
+# temporary builds
+tmp
+
+# production builds
+bin
+
+# environment varibables
+.env
+
+# cache files
+cache
+!internal/cache
+
+# data files (ban lists, etc.)
+data
+
+# Backup files
+*.bak
