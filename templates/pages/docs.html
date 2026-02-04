@@ -11,13 +11,13 @@
       {{range .Doc.Sidebar}}
       {{if eq .Level 0}}
       <div class="docs-nav-section">
-        <a href="/docs/{{.Slug}}" class="docs-nav-link{{if eq .Slug $.Doc.CurrentSlug}} active{{end}}">
+        <a href="{{localePath (print "/docs/" .Slug) $.Lang}}" class="docs-nav-link{{if eq .Slug $.Doc.CurrentSlug}} active{{end}}">
           {{.Title}}
         </a>
       </div>
       {{else if eq .Level 1}}
       <div class="docs-nav-item">
-        <a href="/docs/{{.Slug}}" class="docs-nav-link{{if eq .Slug $.Doc.CurrentSlug}} active{{end}}">
+        <a href="{{localePath (print "/docs/" .Slug) $.Lang}}" class="docs-nav-link{{if eq .Slug $.Doc.CurrentSlug}} active{{end}}">
           {{.Title}}
         </a>
       </div>
