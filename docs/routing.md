@@ -207,8 +207,18 @@ Alternate language links for SEO:
 ### Template Functions
 
 ```html
-{{canonicalURL .Canonical .Lang}} {{alternateLinks .Canonical}} {{alternateURLs
-.Canonical}}
+{{canonicalURL .Canonical .Lang}}
+{{alternateLinks .Canonical}}
+{{alternateURLs .Canonical}}
+{{localePath "/about" .Lang}}
+```
+
+The `localePath` function is the recommended way to generate links in templates. It automatically looks up the correct URL for each language from the route registry.
+
+```html
+<a href="{{localePath "/about" .Lang}}">{{t .Lang "nav.about"}}</a>
+<!-- English: /en/about -->
+<!-- Turkish: /tr/hakkinda -->
 ```
 
 ## Route Lookup
@@ -227,11 +237,11 @@ route := registry.GetByCanonical("/about")
 // Returns RouteDefinition
 ```
 
-### Get Path for Language
+### Get Path for Language (Go code)
 
 ```go
 seoHelpers := router.NewSEOHelpers(registry, baseURL)
-path := seoHelpers.GetPathForLanguage("/about", "tr")
+path := seoHelpers.GetLocalePath("/about", "tr")
 // Returns "/tr/hakkinda"
 ```
 

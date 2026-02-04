@@ -86,9 +86,23 @@ The `.` passes all data to the partial.
 ### SEO Functions
 
 ```html
-{{canonicalURL .Canonical .Lang}} {{alternateLinks .Canonical}} {{alternateURLs
-.Canonical}} {{pathForLanguage .Canonical "tr"}}
+{{canonicalURL .Canonical .Lang}}
+{{alternateLinks .Canonical}}
+{{alternateURLs .Canonical}}
+{{localePath "/about" .Lang}}
 ```
+
+#### localePath
+
+Generate the correct URL path for a canonical route in the current language:
+
+```html
+<a href="{{localePath "/about" .Lang}}">{{t .Lang "nav.about"}}</a>
+<!-- For English: /en/about -->
+<!-- For Turkish: /tr/hakkinda -->
+```
+
+This function looks up the route from the registry and returns the correct localized path. Use this instead of hardcoded paths like `/{{.Lang}}/about` which don't account for different URL patterns per language.
 
 ### Translation Function
 
