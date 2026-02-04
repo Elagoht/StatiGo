@@ -3,6 +3,7 @@ tmp
 
 # production builds
 bin
+statigo
 
 # environment varibables
 .env
