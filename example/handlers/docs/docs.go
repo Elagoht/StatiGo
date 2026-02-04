@@ -81,15 +81,17 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Extract slug from URL path
 	// Path format: /{lang}/docs or /{lang}/docs/{slug}
-	// After removing language: /docs or /docs/{slug}
 	path := r.URL.Path
 
 	// Remove language prefix (e.g., /en/ or /tr/)
 	langPrefix := "/" + lang + "/"
 	path = strings.TrimPrefix(path, langPrefix)
 
-	// Remove /docs/ prefix to get the slug
-	slug := strings.TrimPrefix(path, "docs/")
+	// Remove /docs or /docs/ prefix to get the slug
+	path = strings.TrimPrefix(path, "docs")
+	path = strings.TrimPrefix(path, "/")
+
+	slug := path
 
 	// Default to overview if no slug
 	if slug == "" || slug == "/" {
