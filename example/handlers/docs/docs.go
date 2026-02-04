@@ -174,7 +174,7 @@ func (h *Handler) generateSidebar() []SidebarItem {
 	_, _ = fs.ReadDir(h.docFS, ".")
 	sidebar := []SidebarItem{
 		{Title: "Overview", Slug: "overview", Level: 0},
-		{Title: "Getting Started", Slug: "getting-started", Level: 0},
+		{Title: "Getting Started", Slug: "getting-started", Level: 1},
 		{Title: "Routing", Slug: "routing", Level: 1},
 		{Title: "Middleware", Slug: "middleware", Level: 1},
 		{Title: "Caching", Slug: "caching", Level: 1},
