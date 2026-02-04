@@ -1,0 +1,17 @@
+{
+  "name": "Statigo App",
+  "short_name": "Statigo",
+  "description": "A static-first, SEO-optimized Go web framework",
+  "theme_color": "#3b82f6",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
