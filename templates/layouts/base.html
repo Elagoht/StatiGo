@@ -1,0 +1,55 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="{{.Lang}}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+
+    {{/* Page Title */}}
+    <title>{{block "title" .}}{{if .Title}}{{.Title}}{{else}}Statigo{{end}}{{end}}</title>
+
+    {{/* Meta Description */}}
+    {{- if .Meta}}
+    {{- if .Meta.description}}
+    <meta name="description" content="{{.Meta.description}}" />
+    {{- end}}
+    {{- end}}
+
+    {{/* SEO: Canonical & Hreflang */}}
+    {{- if .Canonical}}
+    <link rel="canonical" href="{{canonicalURL .Canonical .Lang}}" />
+    {{alternateLinks .Canonical}}
+    {{- end}}
+
+    {{/* Favicon */}}
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+    {{/* Main Stylesheet */}}
+    <link rel="stylesheet" href="/styles/main.css" />
+
+    {{/* Page-specific CSS */}}
+    {{block "page-css" .}}{{end}}
+
+    {{/* Page-specific head scripts */}}
+    {{block "page-scripts" .}}{{end}}
+
+    {{/* Additional head content */}}
+    {{block "extra-head" .}}{{end}}
+  </head>
+  <body>
+    {{template "header.html" .}}
+
+    <main>
+      {{block "main" .}}{{end}}
+    </main>
+
+    {{template "footer.html" .}}
+
+    {{/* Main JavaScript */}}
+    <script defer src="/scripts/main.js"></script>
+
+    {{/* Page-specific footer scripts */}}
+    {{block "footer-scripts" .}}{{end}}
+  </body>
+</html>
+{{end}}

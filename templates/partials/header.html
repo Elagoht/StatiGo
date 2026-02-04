@@ -1,0 +1,24 @@
+{{define "header.html"}}
+<header class="site-header">
+  <nav class="nav-container">
+    <a href="/{{.Lang}}/" class="logo">
+      <span class="logo-text">Statigo</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="/{{.Lang}}/">{{t .Lang "nav.home"}}</a></li>
+      <li><a href="/{{.Lang}}/about">{{t .Lang "nav.about"}}</a></li>
+    </ul>
+
+    {{/* Language Switcher */}}
+    {{- if .Canonical}}
+    <div class="lang-switcher">
+      {{- $urls := alternateURLs .Canonical}}
+      {{- range $lang, $url := $urls}}
+      <a href="{{$url}}" class="lang-link{{if eq $lang $.Lang}} active{{end}}">{{$lang}}</a>
+      {{- end}}
+    </div>
+    {{- end}}
+  </nav>
+</header>
+{{end}}

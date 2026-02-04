@@ -1,0 +1,33 @@
+{{template "base" .}}
+
+{{define "main"}}
+<section class="hero">
+  <div class="hero-container">
+    <h1 class="hero-title">{{.Content.heading}}</h1>
+    <p class="hero-subtitle">{{.Content.subheading}}</p>
+    <div class="hero-actions">
+      <a href="/{{.Lang}}/about" class="btn btn-primary">{{t .Lang "pages.home.cta"}}</a>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="features-container">
+    <h2 class="section-title">{{t .Lang "pages.home.features.title"}}</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>{{t .Lang "pages.home.features.fast.title"}}</h3>
+        <p>{{t .Lang "pages.home.features.fast.description"}}</p>
+      </div>
+      <div class="feature-card">
+        <h3>{{t .Lang "pages.home.features.seo.title"}}</h3>
+        <p>{{t .Lang "pages.home.features.seo.description"}}</p>
+      </div>
+      <div class="feature-card">
+        <h3>{{t .Lang "pages.home.features.i18n.title"}}</h3>
+        <p>{{t .Lang "pages.home.features.i18n.description"}}</p>
+      </div>
+    </div>
+  </div>
+</section>
+{{end}}
