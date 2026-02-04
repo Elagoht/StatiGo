@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -80,8 +79,17 @@ type SidebarItem struct {
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lang := middleware.GetLanguage(r.Context())
 
-	// Get the doc slug from the route
-	slug := chi.URLParam(r, "slug")
+	// Extract slug from URL path
+	// Path format: /{lang}/docs or /{lang}/docs/{slug}
+	// After removing language: /docs or /docs/{slug}
+	path := r.URL.Path
+
+	// Remove language prefix (e.g., /en/ or /tr/)
+	langPrefix := "/" + lang + "/"
+	path = strings.TrimPrefix(path, langPrefix)
+
+	// Remove /docs/ prefix to get the slug
+	slug := strings.TrimPrefix(path, "docs/")
 
 	// Default to overview if no slug
 	if slug == "" || slug == "/" {
