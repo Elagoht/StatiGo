@@ -42,7 +42,7 @@ Visit `http://localhost:8080` to see the example site.
 
 ## Project Structure
 
-```
+```text
 statigo/
 ├── framework/          # Framework packages
 │   ├── router/        # Multi-language routing
