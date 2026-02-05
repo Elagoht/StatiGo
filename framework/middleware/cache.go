@@ -38,7 +38,7 @@ func CacheMiddleware(cacheManager *cache.Manager, logger *slog.Logger) func(http
 			// Try to get from cache
 			entry, found := cacheManager.Get(cacheKey)
 			if found && !entry.IsStale() {
-				etag := `"` + entry.ETag + `"`
+				etag := `W/"` + entry.ETag + `"`
 
 				// Check If-None-Match for 304 Not Modified
 				if etagMatch(r.Header.Get("If-None-Match"), etag) {
@@ -103,7 +103,7 @@ func CacheMiddleware(cacheManager *cache.Manager, logger *slog.Logger) func(http
 
 					// Set ETag from the newly cached entry
 					if cachedEntry, ok := cacheManager.Get(cacheKey); ok {
-						w.Header().Set("ETag", `"`+cachedEntry.ETag+`"`)
+						w.Header().Set("ETag", `W/"`+cachedEntry.ETag+`"`)
 						w.Header().Set("Cache-Control", "no-cache")
 					}
 				}
