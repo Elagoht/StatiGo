@@ -98,12 +98,17 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		slug = "overview"
 	}
 
-	// Read markdown file
-	content, err := fs.ReadFile(h.docFS, slug+".md")
+	// Try language-specific file first, then fall back to English
+	// E.g., tr/overview.md, then en/overview.md
+	content, err := fs.ReadFile(h.docFS, lang+"/"+slug+".md")
 	if err != nil {
-		h.logger.Warn("Doc not found", "slug", slug, "error", err)
-		h.render404(w, r, lang)
-		return
+		// Fall back to English version
+		content, err = fs.ReadFile(h.docFS, "en/"+slug+".md")
+		if err != nil {
+			h.logger.Warn("Doc not found", "slug", slug, "error", err)
+			h.render404(w, r, lang)
+			return
+		}
 	}
 
 	// Convert markdown to HTML
