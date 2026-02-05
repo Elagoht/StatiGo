@@ -1,7 +1,6 @@
 {
   "nav": {
     "home": "Ana Sayfa",
-    "about": "Hakkında",
     "docs": "Docs"
   },
   "docs": {
@@ -28,7 +27,7 @@
       "description": "Statik öncelikli, SEO optimize edilmiş bir Go web framework'ü",
       "heading": "Hızlı, SEO Optimize Web Siteleri Oluşturun",
       "subheading": "Statigo, önbellekleme, i18n ve SEO ile hazır bir üretim sınıfı Go web framework'üdür.",
-      "cta": "Daha Fazla Bilgi",
+      "cta": "Dokümantasyonu Oku",
       "features": {
         "title": "Neden Statigo?",
         "fast": {
@@ -44,12 +43,6 @@
           "description": "URL tabanlı dil yönlendirmesi ile yerleşik uluslararasılaşma."
         }
       }
-    },
-    "about": {
-      "title": "Statigo Hakkında",
-      "description": "Statigo framework'ü hakkında daha fazla bilgi",
-      "heading": "Statigo Hakkında",
-      "body": "Statigo, üretim sistemlerinden çıkarılmış statik öncelikli, SEO optimize edilmiş bir Go web framework'üdür. Önbellekleme, uluslararasılaşma, güvenlik ara yazılımı ve daha fazlasını sağlar."
     },
     "notfound": {
       "title": "Sayfa Bulunamadı",

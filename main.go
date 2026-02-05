@@ -104,14 +104,12 @@ func main() {
 
 	// Initialize example handlers
 	indexHandler := handlers.NewIndexHandler(renderer, cacheManager, routeRegistry)
-	aboutHandler := handlers.NewAboutHandler(renderer, cacheManager)
 	docsHandler := docsHandlers.NewHandler(renderer, seoHelpers, GetDocsFS(), i18nInstance, appLogger, baseURL)
 	notFoundHandler := handlers.NewNotFoundHandler(renderer)
 
 	// Create custom handlers map for route loader
 	customHandlers := map[string]http.HandlerFunc{
 		"index": indexHandler.ServeHTTP,
-		"about": aboutHandler.ServeHTTP,
 		"docs":  docsHandler.ServeHTTP,
 	}
 

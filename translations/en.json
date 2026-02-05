@@ -1,7 +1,6 @@
 {
   "nav": {
     "home": "Home",
-    "about": "About",
     "docs": "Docs"
   },
   "docs": {
@@ -28,7 +27,7 @@
       "description": "A static-first, SEO-optimized Go web framework",
       "heading": "Build Fast, SEO-Optimized Websites",
       "subheading": "Statigo is a production-ready Go web framework with caching, i18n, and SEO built-in.",
-      "cta": "Learn More",
+      "cta": "Read the Docs",
       "features": {
         "title": "Why Statigo?",
         "fast": {
@@ -44,12 +43,6 @@
           "description": "Built-in internationalization with URL-based language routing."
         }
       }
-    },
-    "about": {
-      "title": "About Statigo",
-      "description": "Learn more about the Statigo framework",
-      "heading": "About Statigo",
-      "body": "Statigo is a static-first, SEO-optimized Go web framework extracted from production systems. It provides caching, internationalization, security middleware, and more."
     },
     "notfound": {
       "title": "Page Not Found",
