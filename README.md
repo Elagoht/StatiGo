@@ -1,6 +1,26 @@
+<div align="center">
+
+<img src="statigo.png" alt="Statigo Logo" width="200" />
+
 # Statigo
 
-A static-first, SEO-optimized Go web framework extracted from production systems.
+![Go Version](https://img.shields.io/badge/Go-1.25-00ADD8?style=flat&logo=go)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+
+</div>
+
+A lightweight Go web framework for building static-first, SEO-optimized websites.
+
+## What is Statigo?
+
+Statigo is a framework designed for content-driven websites that prioritize performance and search engine optimization. Unlike dynamic-heavy frameworks, Statigo takes a static-first approach:
+
+- **Prerender pages at build time** for instant page loads and perfect SEO
+- **Serve static HTML** by default, with optional dynamic features
+- **Cache everything** with a two-tier (memory + disk) caching system
+- **Deploy as a single binary** with all assets embedded
+
+It's ideal for documentation sites, blogs, marketing pages, and any content-focused web application where speed and SEO matter more than real-time dynamic features.
 
 ## Features
 
