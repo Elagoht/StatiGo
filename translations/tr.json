@@ -5,16 +5,44 @@
   },
   "docs": {
     "title": "Dokümantasyon",
+    "description": "Statigo web framework için kapsamlı dokümantasyon: yönlendirme, ara yazılım, önbellekleme, i18n, şablonlar, yapılandırma ve CLI.",
     "on_this_page": "Bu sayfada",
-    "overview": "Genel Bakış",
-    "getting_started": "Başlarken",
-    "routing": "Yönlendirme",
-    "middleware": "Ara Yazılım",
-    "caching": "Önbellekleme",
-    "i18n": "Çoklu Dil",
-    "templates": "Şablonlar",
-    "configuration": "Yapılandırma",
-    "cli": "Komut Satırı",
+    "overview": {
+      "title": "Genel Bakış",
+      "description": "Statigo framework'üne giriş, statik öncelikli mimari, çok dil yönlendirme ve yerleşik SEO optimizasyonu."
+    },
+    "getting_started": {
+      "title": "Başlarken",
+      "description": "Sıfırdan bir Statigo projesi oluşturma adımları, yapılandırma ve temel yönlendirme."
+    },
+    "routing": {
+      "title": "Yönlendirme",
+      "description": "Çok dilli URL yönlendirmesi, SEO özellikleri (kanonik URL'ler, hreflang etiketleri) ve dinamik yönlendirme."
+    },
+    "middleware": {
+      "title": "Ara Yazılım (Middleware)",
+      "description": "Günlükleme, sıkıştırma, oran sınırlama, IP yasaklama ve güvenlik başlıkları dahil."
+    },
+    "caching": {
+      "title": "Önbellekleme",
+      "description": "İki katmanlı önbellekleme sistemi, önbellek stratejileri ve geçersiz kılma yöntemleri."
+    },
+    "i18n": {
+      "title": "Uluslararasılaşma (i18n)",
+      "description": "JSON çevirileri, URL yönlendirme ve dil algılama ile çok dil desteği ekleme."
+    },
+    "templates": {
+      "title": "Şablonlar",
+      "description": "Go html/template paketi ile Statigo şablonları, şablon işlevleri ve veri geçişi."
+    },
+    "configuration": {
+      "title": "Yapılandırma",
+      "description": "Ortam değişkenleri, routes.json, redirects.json ve çeviri dosyaları yapılandırması."
+    },
+    "cli": {
+      "title": "Komut Satırı Arayüzü (CLI)",
+      "description": "Sayfaları önceden oluşturma, önbellek temizleme ve özel komutlar oluşturma."
+    },
     "not_found": "Dokümantasyon Bulunamadı",
     "not_found_message": "Aradığınız dokümantasyon sayfası mevcut değil."
   },
@@ -24,7 +52,7 @@
   "pages": {
     "home": {
       "title": "Statigo'ya Hoş Geldiniz",
-      "description": "Statik öncelikli, SEO optimize edilmiş bir Go web framework'ü",
+      "description": "Statigo, hızlı ve SEO optimize edilmiş çok dilli web siteleri oluşturmak için üretime hazır bir Go web framework'ü. Statik öncelikli mimari, yerleşik önbellekleme ve SEO desteği içerir.",
       "heading": "Hızlı, SEO Optimize Web Siteleri Oluşturun",
       "subheading": "Statigo, önbellekleme, i18n ve SEO ile hazır bir üretim sınıfı Go web framework'üdür.",
       "cta": "Dokümantasyonu Oku",
@@ -46,6 +74,7 @@
     },
     "notfound": {
       "title": "Sayfa Bulunamadı",
+      "description": "Aradığınız sayfa mevcut değil veya taşınmış.",
       "heading": "Sayfa Bulunamadı",
       "message": "Aradığınız sayfa mevcut değil veya taşınmış.",
       "action": "Ana Sayfaya Git"

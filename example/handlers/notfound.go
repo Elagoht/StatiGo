@@ -31,6 +31,9 @@ func (h *NotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Lang":  lang,
 		"Title": h.renderer.GetTranslation(lang, "pages.notfound.title"),
+		"Meta": map[string]string{
+			"description": h.renderer.GetTranslation(lang, "pages.notfound.description"),
+		},
 		"Content": map[string]string{
 			"heading": h.renderer.GetTranslation(lang, "pages.notfound.heading"),
 			"message": h.renderer.GetTranslation(lang, "pages.notfound.message"),

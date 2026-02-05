@@ -5,16 +5,44 @@
   },
   "docs": {
     "title": "Documentation",
+    "description": "Comprehensive documentation for the Statigo web framework covering routing, middleware, caching, i18n, templates, configuration, and CLI.",
     "on_this_page": "On this page",
-    "overview": "Overview",
-    "getting_started": "Getting Started",
-    "routing": "Routing",
-    "middleware": "Middleware",
-    "caching": "Caching",
-    "i18n": "i18n",
-    "templates": "Templates",
-    "configuration": "Configuration",
-    "cli": "CLI",
+    "overview": {
+      "title": "Overview",
+      "description": "Introduction to Statigo framework and its key features including static-first architecture, multi-language routing, and built-in SEO optimization."
+    },
+    "getting_started": {
+      "title": "Getting Started",
+      "description": "Step-by-step guide to setting up a new Statigo project from scratch with Go, including configuration and basic routing."
+    },
+    "routing": {
+      "title": "Routing",
+      "description": "Learn how to configure multi-language URL routes, SEO features like canonical URLs and hreflang tags, and dynamic routing in Statigo."
+    },
+    "middleware": {
+      "title": "Middleware",
+      "description": "Comprehensive guide to Statigo's middleware pipeline including logging, compression, rate limiting, IP banning, and security headers."
+    },
+    "caching": {
+      "title": "Caching",
+      "description": "Understanding Statigo's two-tier caching system with memory and disk persistence, caching strategies, and invalidation methods."
+    },
+    "i18n": {
+      "title": "Internationalization (i18n)",
+      "description": "Complete guide to adding multi-language support with JSON translations, URL routing, and language detection."
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Using Go's html/template package with Statigo, including template functions, partials, and passing data to templates."
+    },
+    "configuration": {
+      "title": "Configuration",
+      "description": "Environment variables, routes.json, redirects.json, and translation files configuration for Statigo applications."
+    },
+    "cli": {
+      "title": "CLI (Command Line Interface)",
+      "description": "Using Statigo's CLI for pre-rendering pages, clearing cache, and creating custom commands."
+    },
     "not_found": "Documentation Not Found",
     "not_found_message": "The documentation page you're looking for doesn't exist."
   },
@@ -24,7 +52,7 @@
   "pages": {
     "home": {
       "title": "Welcome to Statigo",
-      "description": "A static-first, SEO-optimized Go web framework",
+      "description": "Statigo is a production-ready Go web framework for building fast, SEO-optimized, multi-language websites with static-first architecture and built-in caching.",
       "heading": "Build Fast, SEO-Optimized Websites",
       "subheading": "Statigo is a production-ready Go web framework with caching, i18n, and SEO built-in.",
       "cta": "Read the Docs",
@@ -46,6 +74,7 @@
     },
     "notfound": {
       "title": "Page Not Found",
+      "description": "The page you're looking for doesn't exist or has been moved.",
       "heading": "Page Not Found",
       "message": "The page you're looking for doesn't exist or has been moved.",
       "action": "Go Home"

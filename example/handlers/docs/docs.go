@@ -148,12 +148,23 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Sidebar:     sidebar,
 	}
 
+	// Get meta description for this doc
+	descKey := "docs." + strings.ReplaceAll(slug, "-", "_") + ".description"
+	description := h.i18n.Get(lang, descKey)
+	if description == "" {
+		// Fallback to general docs description
+		description = h.i18n.Get(lang, "docs.description")
+	}
+
 	data := map[string]interface{}{
 		"Doc":       doc,
 		"Title":     title + " - Documentation",
 		"BaseURL":   h.baseURL,
 		"Lang":      lang,
 		"Canonical": canonical,
+		"Meta": map[string]string{
+			"description": description,
+		},
 	}
 
 	h.renderer.Render(w, "docs.html", data)
@@ -380,6 +391,9 @@ func (h *Handler) render404(w http.ResponseWriter, r *http.Request, lang string)
 		"Title":     h.i18n.Get(lang, "docs.not_found"),
 		"Lang":      lang,
 		"Canonical": "/docs/404",
+		"Meta": map[string]string{
+			"description": h.i18n.Get(lang, "docs.description"),
+		},
 	}
 
 	h.renderer.Render(w, "docs.html", data)
