@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Ana Sayfa",
-    "about": "Hakkında"
+    "about": "Hakkında",
+    "docs": "Dokümanlar"
   },
   "footer": {
     "copyright": "Statigo Framework. Go ile yapıldı."

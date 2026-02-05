@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "about": "About"
+    "about": "About",
+    "docs": "Docs"
   },
   "footer": {
     "copyright": "Statigo Framework. Built with Go."

@@ -25,8 +25,7 @@
     {
       "canonical": "/docs/overview",
       "paths": {
-        "en": "/en/docs",
-        "tr": "/tr/dokuman"
+        "en": "/en/docs"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -35,8 +34,7 @@
     {
       "canonical": "/docs/getting-started",
       "paths": {
-        "en": "/en/docs/getting-started",
-        "tr": "/tr/dokuman/baslarken"
+        "en": "/en/docs/getting-started"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -45,8 +43,7 @@
     {
       "canonical": "/docs/routing",
       "paths": {
-        "en": "/en/docs/routing",
-        "tr": "/tr/dokuman/yonlendirme"
+        "en": "/en/docs/routing"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -55,8 +52,7 @@
     {
       "canonical": "/docs/middleware",
       "paths": {
-        "en": "/en/docs/middleware",
-        "tr": "/tr/dokuman/ara-katman"
+        "en": "/en/docs/middleware"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -65,8 +61,7 @@
     {
       "canonical": "/docs/caching",
       "paths": {
-        "en": "/en/docs/caching",
-        "tr": "/tr/dokuman/ozellik"
+        "en": "/en/docs/caching"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -75,8 +70,7 @@
     {
       "canonical": "/docs/i18n",
       "paths": {
-        "en": "/en/docs/i18n",
-        "tr": "/tr/dokuman/coklu-dil"
+        "en": "/en/docs/i18n"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -85,8 +79,7 @@
     {
       "canonical": "/docs/templates",
       "paths": {
-        "en": "/en/docs/templates",
-        "tr": "/tr/dokuman/sablonlar"
+        "en": "/en/docs/templates"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -95,8 +88,7 @@
     {
       "canonical": "/docs/configuration",
       "paths": {
-        "en": "/en/docs/configuration",
-        "tr": "/tr/dokuman/yapilandirma"
+        "en": "/en/docs/configuration"
       },
       "strategy": "static",
       "template": "docs.html",
@@ -105,8 +97,7 @@
     {
       "canonical": "/docs/cli",
       "paths": {
-        "en": "/en/docs/cli",
-        "tr": "/tr/dokuman/satir"
+        "en": "/en/docs/cli"
       },
       "strategy": "static",
       "template": "docs.html",
