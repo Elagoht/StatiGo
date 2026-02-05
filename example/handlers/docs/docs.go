@@ -6,18 +6,49 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"unicode"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/text"
 	"github.com/yuin/goldmark/renderer/html"
+	"github.com/yuin/goldmark/text"
 
 	fwi18n "statigo/framework/i18n"
 	"statigo/framework/middleware"
 	"statigo/framework/templates"
 )
+
+// slugifyForTOC converts a string to a URL-friendly slug that matches
+// goldmark's AutoHeadingID output (which strips non-ASCII characters).
+func slugifyForTOC(s string) string {
+	s = strings.ToLower(s)
+
+	// Turkish character mappings - convert to ASCII before stripping
+	turkishMap := map[rune]string{
+		'ç': "c", 'Ç': "c",
+		'ğ': "g", 'Ğ': "g",
+		'ı': "i", 'İ': "i",
+		'ş': "s", 'Ş': "s",
+		'ö': "o", 'Ö': "o",
+		'ü': "u", 'Ü': "u",
+	}
+
+	var result strings.Builder
+	for _, r := range s {
+		if replacement, ok := turkishMap[r]; ok {
+			result.WriteString(replacement)
+		} else if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			result.WriteRune(r)
+		} else if r == ' ' || r == '-' {
+			result.WriteRune('-')
+		}
+		// Skip other characters
+	}
+
+	return result.String()
+}
 
 // Handler handles documentation page requests.
 type Handler struct {
@@ -267,23 +298,7 @@ func (h *Handler) generateSidebar(lang string) []SidebarItem {
 
 // slugify converts a string to a URL-friendly slug.
 func (h *Handler) slugify(s string) string {
-	s = strings.ToLower(s)
-	s = strings.ReplaceAll(s, " ", "-")
-	s = strings.ReplaceAll(s, "?", "")
-	s = strings.ReplaceAll(s, "!", "")
-	s = strings.ReplaceAll(s, ".", "")
-	s = strings.ReplaceAll(s, ",", "")
-	s = strings.ReplaceAll(s, ":", "")
-	s = strings.ReplaceAll(s, ";", "")
-	s = strings.ReplaceAll(s, "/", "")
-	s = strings.ReplaceAll(s, "\\", "")
-	s = strings.ReplaceAll(s, "(", "")
-	s = strings.ReplaceAll(s, ")", "")
-	s = strings.ReplaceAll(s, "[", "")
-	s = strings.ReplaceAll(s, "]", "")
-	s = strings.ReplaceAll(s, "{", "")
-	s = strings.ReplaceAll(s, "}", "")
-	return s
+	return slugifyForTOC(s)
 }
 
 // render404 renders a 404 page for documentation.
