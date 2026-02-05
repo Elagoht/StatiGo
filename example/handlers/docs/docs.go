@@ -269,10 +269,12 @@ func (h *Handler) generateSidebar(lang string) []SidebarItem {
 
 	sidebar := make([]SidebarItem, len(items))
 	for i, item := range items {
-		title := h.i18n.Get(lang, item.key)
-		if title == "" {
-			// Fallback to English key name if translation missing
-			title = item.key
+		// Use .title suffix since the key points to an object with title/description
+		titleKey := item.key + ".title"
+		title := h.i18n.Get(lang, titleKey)
+		if title == "" || title == titleKey {
+			// Fallback to slug if translation missing
+			title = item.slug
 		}
 		sidebar[i] = SidebarItem{
 			Title: title,
