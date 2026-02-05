@@ -4,6 +4,21 @@
     "about": "Hakkında",
     "docs": "Docs"
   },
+  "docs": {
+    "title": "Dokümantasyon",
+    "on_this_page": "Bu sayfada",
+    "overview": "Genel Bakış",
+    "getting_started": "Başlarken",
+    "routing": "Yönlendirme",
+    "middleware": "Ara Yazılım",
+    "caching": "Önbellekleme",
+    "i18n": "Çoklu Dil",
+    "templates": "Şablonlar",
+    "configuration": "Yapılandırma",
+    "cli": "Komut Satırı",
+    "not_found": "Dokümantasyon Bulunamadı",
+    "not_found_message": "Aradığınız dokümantasyon sayfası mevcut değil."
+  },
   "footer": {
     "copyright": "Statigo Framework. Go ile yapıldı."
   },

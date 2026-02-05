@@ -4,6 +4,21 @@
     "about": "About",
     "docs": "Docs"
   },
+  "docs": {
+    "title": "Documentation",
+    "on_this_page": "On this page",
+    "overview": "Overview",
+    "getting_started": "Getting Started",
+    "routing": "Routing",
+    "middleware": "Middleware",
+    "caching": "Caching",
+    "i18n": "i18n",
+    "templates": "Templates",
+    "configuration": "Configuration",
+    "cli": "CLI",
+    "not_found": "Documentation Not Found",
+    "not_found_message": "The documentation page you're looking for doesn't exist."
+  },
   "footer": {
     "copyright": "Statigo Framework. Built with Go."
   },

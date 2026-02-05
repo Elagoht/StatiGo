@@ -12,6 +12,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 
+	fwi18n "statigo/framework/i18n"
 	"statigo/framework/middleware"
 	"statigo/framework/templates"
 )
@@ -24,10 +25,11 @@ type Handler struct {
 	markdown     goldmark.Markdown
 	logger       *slog.Logger
 	baseURL      string
+	i18n         *fwi18n.I18n
 }
 
 // NewHandler creates a new documentation handler.
-func NewHandler(renderer *templates.Renderer, seoHelpers interface{}, docFS fs.FS, logger *slog.Logger, baseURL string) *Handler {
+func NewHandler(renderer *templates.Renderer, seoHelpers interface{}, docFS fs.FS, i18nInstance *fwi18n.I18n, logger *slog.Logger, baseURL string) *Handler {
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
@@ -49,6 +51,7 @@ func NewHandler(renderer *templates.Renderer, seoHelpers interface{}, docFS fs.F
 		markdown:   md,
 		logger:     logger,
 		baseURL:    baseURL,
+		i18n:       i18nInstance,
 	}
 }
 
@@ -122,7 +125,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	toc := h.generateTOC(string(content))
 
 	// Generate sidebar
-	sidebar := h.generateSidebar()
+	sidebar := h.generateSidebar(lang)
 
 	// Build canonical path
 	canonical := "/docs/" + slug
@@ -195,18 +198,38 @@ func (h *Handler) generateTOC(content string) []TOCItem {
 }
 
 // generateSidebar generates sidebar navigation from all docs.
-func (h *Handler) generateSidebar() []SidebarItem {
+func (h *Handler) generateSidebar(lang string) []SidebarItem {
 	_, _ = fs.ReadDir(h.docFS, ".")
-	sidebar := []SidebarItem{
-		{Title: "Overview", Slug: "overview", Level: 0},
-		{Title: "Getting Started", Slug: "getting-started", Level: 1},
-		{Title: "Routing", Slug: "routing", Level: 1},
-		{Title: "Middleware", Slug: "middleware", Level: 1},
-		{Title: "Caching", Slug: "caching", Level: 1},
-		{Title: "i18n", Slug: "i18n", Level: 1},
-		{Title: "Templates", Slug: "templates", Level: 1},
-		{Title: "Configuration", Slug: "configuration", Level: 1},
-		{Title: "CLI", Slug: "cli", Level: 1},
+
+	// Translation keys for sidebar items
+	items := []struct {
+		key   string
+		slug  string
+		level int
+	}{
+		{"docs.overview", "overview", 0},
+		{"docs.getting_started", "getting-started", 1},
+		{"docs.routing", "routing", 1},
+		{"docs.middleware", "middleware", 1},
+		{"docs.caching", "caching", 1},
+		{"docs.i18n", "i18n", 1},
+		{"docs.templates", "templates", 1},
+		{"docs.configuration", "configuration", 1},
+		{"docs.cli", "cli", 1},
+	}
+
+	sidebar := make([]SidebarItem, len(items))
+	for i, item := range items {
+		title := h.i18n.Get(lang, item.key)
+		if title == "" {
+			// Fallback to English key name if translation missing
+			title = item.key
+		}
+		sidebar[i] = SidebarItem{
+			Title: title,
+			Slug:  item.slug,
+			Level: item.level,
+		}
 	}
 
 	return sidebar
@@ -239,11 +262,11 @@ func (h *Handler) render404(w http.ResponseWriter, r *http.Request, lang string)
 
 	data := map[string]interface{}{
 		"Doc": Doc{
-			Title:   "Documentation Not Found",
-			Content: "<p>The documentation page you're looking for doesn't exist.</p>",
-			Sidebar: h.generateSidebar(),
+			Title:   h.i18n.Get(lang, "docs.not_found"),
+			Content: "<p>" + h.i18n.Get(lang, "docs.not_found_message") + "</p>",
+			Sidebar: h.generateSidebar(lang),
 		},
-		"Title":     "Documentation Not Found",
+		"Title":     h.i18n.Get(lang, "docs.not_found"),
 		"Lang":      lang,
 		"Canonical": "/docs/404",
 	}

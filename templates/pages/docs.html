@@ -5,7 +5,7 @@
 <div class="docs-container">
   <aside class="docs-sidebar">
     <div class="docs-sidebar-header">
-      <h2>Documentation</h2>
+      <h2>{{t "docs.title"}}</h2>
     </div>
     <nav class="docs-nav">
       {{range .Doc.Sidebar}}
@@ -36,7 +36,7 @@
 
   {{if .Doc.TOC}}
   <aside class="docs-toc">
-    <h3>On this page</h3>
+    <h3>{{t "docs.on_this_page"}}</h3>
     <ul class="docs-toc-list">
       {{range .Doc.TOC}}
       <li>
