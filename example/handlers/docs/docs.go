@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -19,36 +20,6 @@ import (
 	"statigo/framework/middleware"
 	"statigo/framework/templates"
 )
-
-// slugifyForTOC converts a string to a URL-friendly slug that matches
-// goldmark's AutoHeadingID output (which strips non-ASCII characters).
-func slugifyForTOC(s string) string {
-	s = strings.ToLower(s)
-
-	// Turkish character mappings - convert to ASCII before stripping
-	turkishMap := map[rune]string{
-		'ç': "c", 'Ç': "c",
-		'ğ': "g", 'Ğ': "g",
-		'ı': "i", 'İ': "i",
-		'ş': "s", 'Ş': "s",
-		'ö': "o", 'Ö': "o",
-		'ü': "u", 'Ü': "u",
-	}
-
-	var result strings.Builder
-	for _, r := range s {
-		if replacement, ok := turkishMap[r]; ok {
-			result.WriteString(replacement)
-		} else if unicode.IsLetter(r) || unicode.IsDigit(r) {
-			result.WriteRune(r)
-		} else if r == ' ' || r == '-' {
-			result.WriteRune('-')
-		}
-		// Skip other characters
-	}
-
-	return result.String()
-}
 
 // Handler handles documentation page requests.
 type Handler struct {
@@ -151,6 +122,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var htmlBuf strings.Builder
 	h.markdown.Convert(content, &htmlBuf)
 
+	// Post-process HTML to fix Turkish character IDs
+	htmlContent := h.fixTurkishIDs(htmlBuf.String())
+
 	// Parse title from first heading
 	title := h.extractTitle(string(content))
 
@@ -165,7 +139,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	doc := Doc{
 		Title:       title,
-		Content:     htmlBuf.String(),
+		Content:     htmlContent,
 		TOC:         toc,
 		CurrentSlug: slug,
 		Sidebar:     sidebar,
@@ -230,13 +204,14 @@ func (h *Handler) generateTOC(content string) []TOCItem {
 			headingID := ""
 			if id, ok := heading.AttributeString("id"); ok {
 				if idStr, ok := id.(string); ok {
-					headingID = idStr
+					// Fix Turkish characters - goldmark strips them but we want them preserved as ASCII
+					headingID = slugifyForTOC(idStr)
 				}
 			}
 
 			if headingID == "" {
 				// Fallback to slugify if no ID
-				headingID = h.slugify(title.String())
+				headingID = slugifyForTOC(title.String())
 			}
 
 			tocLevel := heading.Level - 2 // 0 for h2, 1 for h3, 2 for h4
@@ -299,6 +274,53 @@ func (h *Handler) generateSidebar(lang string) []SidebarItem {
 // slugify converts a string to a URL-friendly slug.
 func (h *Handler) slugify(s string) string {
 	return slugifyForTOC(s)
+}
+
+// slugifyForTOC converts Turkish characters to ASCII and creates a URL-friendly slug.
+func slugifyForTOC(s string) string {
+	s = strings.ToLower(s)
+
+	// Turkish character mappings - convert to ASCII
+	turkishMap := map[rune]string{
+		'ç': "c", 'Ç': "c",
+		'ğ': "g", 'Ğ': "g",
+		'ı': "i", 'İ': "i",
+		'ş': "s", 'Ş': "s",
+		'ö': "o", 'Ö': "o",
+		'ü': "u", 'Ü': "u",
+	}
+
+	var result strings.Builder
+	for _, r := range s {
+		if replacement, ok := turkishMap[r]; ok {
+			result.WriteString(replacement)
+		} else if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			result.WriteRune(r)
+		} else if r == ' ' || r == '-' {
+			result.WriteRune('-')
+		}
+		// Skip other characters
+	}
+
+	return result.String()
+}
+
+// fixTurkishIDs post-processes HTML to fix heading IDs for Turkish characters.
+// goldmark's AutoHeadingID strips non-ASCII characters, so "Çeviri" becomes "eviri".
+// We convert these back to ASCII equivalents for consistency.
+func (h *Handler) fixTurkishIDs(htmlContent string) string {
+	// Find all id="xxx" attributes and fix Turkish character IDs
+	re := regexp.MustCompile(`id="([^"]+)"`)
+
+	return re.ReplaceAllStringFunc(htmlContent, func(match string) string {
+		// Extract the ID value
+		id := match[4 : len(match)-1]
+		fixedID := slugifyForTOC(id)
+		if fixedID != id {
+			return `id="` + fixedID + `"`
+		}
+		return match
+	})
 }
 
 // render404 renders a 404 page for documentation.
