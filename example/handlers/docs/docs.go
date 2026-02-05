@@ -15,6 +15,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+	"github.com/yuin/goldmark/util"
 
 	fwi18n "statigo/framework/i18n"
 	"statigo/framework/middleware"
@@ -39,9 +40,11 @@ func NewHandler(renderer *templates.Renderer, seoHelpers interface{}, docFS fs.F
 			extension.GFM,
 			extension.DefinitionList,
 			extension.Footnote,
+			// Use custom AST transformer to generate heading IDs with Turkish support
+			&turkishHeadingIDExtension{},
 		),
 		goldmark.WithParserOptions(
-			parser.WithAutoHeadingID(),
+			// Don't use AutoHeadingID - we use our own
 		),
 		goldmark.WithRendererOptions(
 			html.WithHardWraps(),
@@ -302,6 +305,48 @@ func slugifyForTOC(s string) string {
 	}
 
 	return result.String()
+}
+
+// turkishHeadingIDExtension is a goldmark extension that adds proper heading IDs for Turkish.
+type turkishHeadingIDExtension struct{}
+
+func (e *turkishHeadingIDExtension) Extend(m goldmark.Markdown) {
+	m.Parser().AddOptions(parser.WithASTTransformers(util.Prioritized(&turkishHeadingIDTransformer{}, 100)))
+}
+
+// turkishHeadingIDTransformer adds id attributes to headings using Turkish-aware slugify.
+type turkishHeadingIDTransformer struct{}
+
+func (t *turkishHeadingIDTransformer) Transform(node *ast.Document, reader text.Reader, pc parser.Context) {
+	// We need to keep track of which headings we've already processed
+	processed := make(map[ast.Node]bool)
+
+	ast.Walk(node, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
+		}
+
+		if heading, ok := n.(*ast.Heading); ok {
+			if processed[heading] {
+				return ast.WalkContinue, nil
+			}
+			processed[heading] = true
+
+			// Get heading text
+			var title strings.Builder
+			lines := heading.Lines()
+			for i := 0; i < lines.Len(); i++ {
+				segment := lines.At(i)
+				title.Write(segment.Value([]byte(reader.Source())))
+			}
+
+			// Generate ID using our slugify function
+			headingID := slugifyForTOC(title.String())
+			heading.SetAttribute([]byte("id"), headingID)
+		}
+
+		return ast.WalkContinue, nil
+	})
 }
 
 // fixTurkishIDs post-processes HTML to fix heading IDs for Turkish characters.
