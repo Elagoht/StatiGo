@@ -1,0 +1,63 @@
+{{define "counter"}}
+<div class="counter-wrapper">
+  <button id="counterBtn" class="counter-btn">
+    <span class="counter-label">Count:</span>
+    <span id="counterValue" class="counter-value">0</span>
+  </button>
+</div>
+
+<style>
+.counter-wrapper {
+  margin-top: 2rem;
+}
+
+.counter-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 3rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.counter-btn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.counter-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.counter-label {
+  opacity: 0.9;
+}
+
+.counter-value {
+  font-size: 2rem;
+  font-weight: 700;
+  min-width: 3ch;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .counter-btn {
+    padding: 1.25rem 2rem;
+    font-size: 1.25rem;
+  }
+
+  .counter-value {
+    font-size: 1.5rem;
+  }
+}
+</style>
+{{end}}

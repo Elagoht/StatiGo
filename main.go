@@ -103,13 +103,11 @@ func main() {
 
 	// Initialize example handlers
 	indexHandler := handlers.NewIndexHandler(renderer, cacheManager, routeRegistry)
-	aboutHandler := handlers.NewAboutHandler(renderer, cacheManager)
 	notFoundHandler := handlers.NewNotFoundHandler(renderer)
 
 	// Create custom handlers map for route loader
 	customHandlers := map[string]http.HandlerFunc{
 		"index": indexHandler.ServeHTTP,
-		"about": aboutHandler.ServeHTTP,
 	}
 
 	// Load routes from JSON configuration

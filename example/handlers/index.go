@@ -2,13 +2,18 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
+	"sync/atomic"
 
 	"statigo/framework/cache"
 	"statigo/framework/middleware"
 	"statigo/framework/router"
 	"statigo/framework/templates"
 )
+
+// Global counter state
+var counter int64
 
 // IndexHandler handles the home page.
 type IndexHandler struct {
@@ -31,31 +36,26 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lang := middleware.GetLanguage(r.Context())
 	canonical := router.GetCanonicalPath(r.Context())
 
-	// Try to serve from cache
-	cacheKey := cache.GetCacheKey(canonical, lang, nil)
-	if entry, found := h.cacheManager.Get(cacheKey); found && !entry.IsStale() {
-		content, err := cache.GetDecompressedContent(entry)
-		if err == nil {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			w.Header().Set("X-Cache", "HIT")
-			w.Header().Set("ETag", entry.ETag)
-			w.Write(content)
-			return
-		}
+	// Handle counter increment (API endpoint)
+	if r.Method == http.MethodPost {
+		newCount := atomic.AddInt64(&counter, 1)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]int64{"count": newCount})
+		return
 	}
 
+	// Get current counter value
+	currentCount := atomic.LoadInt64(&counter)
+
 	// Build page data
-	data := map[string]interface{}{
+	data := map[string]any{
 		"Lang":      lang,
 		"Canonical": canonical,
-		"Title":     h.renderer.GetTranslation(lang, "pages.home.title"),
+		"Title":     "StatiGo - Static Speed With Dynamic Content",
 		"Meta": map[string]string{
-			"description": h.renderer.GetTranslation(lang, "pages.home.description"),
+			"description": "StatiGo - Static Speed With Dynamic Content",
 		},
-		"Content": map[string]string{
-			"heading":    h.renderer.GetTranslation(lang, "pages.home.heading"),
-			"subheading": h.renderer.GetTranslation(lang, "pages.home.subheading"),
-		},
+		"Counter": currentCount,
 	}
 
 	h.renderer.Render(w, "index.html", data)

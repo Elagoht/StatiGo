@@ -1,5 +1,4 @@
 // Statigo - Minimal JavaScript
-// This file is intentionally minimal. Add your application logic here.
 
 (function() {
   'use strict';
@@ -15,6 +14,15 @@
 
   // Initialize on DOM ready
   ready(function() {
-    console.log('Statigo initialized');
+    const counterBtn = document.getElementById('counterBtn');
+    const counterValue = document.getElementById('counterValue');
+
+    if (counterBtn && counterValue) {
+      let count = 0;
+      counterBtn.addEventListener('click', function() {
+        count++;
+        counterValue.textContent = count;
+      });
+    }
   });
 })();

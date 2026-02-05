@@ -37,13 +37,9 @@
     {{block "extra-head" .}}{{end}}
   </head>
   <body>
-    {{template "header.html" .}}
-
     <main>
       {{block "main" .}}{{end}}
     </main>
-
-    {{template "footer.html" .}}
 
     {{/* Main JavaScript */}}
     <script defer src="/scripts/main.js"></script>
