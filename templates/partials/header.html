@@ -8,9 +8,7 @@
     <ul class="nav-links">
       <li><a href="{{localePath "/" .Lang}}">{{t .Lang "nav.home"}}</a></li>
       <li><a href="{{localePath "/about" .Lang}}">{{t .Lang "nav.about"}}</a></li>
-      {{if eq .Lang "en"}}
-      <li><a href="/en/docs">{{t "nav.docs"}}</a></li>
-      {{end}}
+      <li><a href="/{{.Lang}}/docs">{{t .Lang "nav.docs"}}</a></li>
     </ul>
 
     {{/* Language Switcher */}}
